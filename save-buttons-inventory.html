@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FlowX Designer — Primary Save Buttons Inventory</title>
+<style>
+  /* ───────────────────── tokens ───────────────────── */
+  :root {
+    --bg: #0b0d12;
+    --panel: #14171f;
+    --panel-soft: #11141b;
+    --border: #1f2330;
+    --border-soft: #181c26;
+    --text: #e9ecf2;
+    --muted: #7a8294;
+    --muted-strong: #a8b0bf;
+    --accent: #6aa3ff;
+    --accent-soft: rgba(106, 163, 255, 0.78);
+    --accent-tint: rgba(106, 163, 255, 0.08);
+    --eyebrow: #6a7387;
+    --hover-row: rgba(255, 255, 255, 0.035);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #fafafb;
+      --panel: #ffffff;
+      --panel-soft: #f7f8fa;
+      --border: #e6e8ee;
+      --border-soft: #eef0f4;
+      --text: #11141a;
+      --muted: #6b7280;
+      --muted-strong: #4a5160;
+      --accent: #2563eb;
+      --accent-soft: #1f56cf;
+      --accent-tint: rgba(37, 99, 235, 0.06);
+      --eyebrow: #8a93a3;
+      --hover-row: rgba(0, 0, 0, 0.035);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                 "Segoe UI", "Geist", "Inter Variable", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: -0.003em;
+    font-feature-settings: "ss01", "cv11", "ss03";
+    padding: 56px 0 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 32px; }
+
+  body { counter-reset: tier; }
+
+  /* ───────────────────── header / hero ───────────────────── */
+  header { margin-bottom: 48px; }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--eyebrow);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 38px;
+    line-height: 1.05;
+    margin: 0 0 14px;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+  header > p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 15px;
+  }
+  .stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .stat .num {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .key {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--eyebrow);
+    margin-top: 4px;
+  }
+
+  /* ───────────────────── controls ───────────────────── */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 0;
+    padding: 12px 14px 12px 16px;
+    background: var(--panel-soft);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 13.5px;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    flex: none;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--border);
+    border-radius: 999px;
+    transition: background .18s ease;
+  }
+  .slider::before {
+    content: "";
+    position: absolute;
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .18s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  }
+  .switch input:checked + .slider { background: var(--accent); }
+  .switch input:checked + .slider::before { transform: translateX(14px); }
+  .controls label.toggle-label {
+    cursor: pointer;
+    user-select: none;
+    color: var(--muted-strong);
+  }
+  .count {
+    margin-left: 14px;
+    padding-left: 14px;
+    border-left: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ───────────────────── TOC ───────────────────── */
+  .toc {
+    margin: 40px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .toc details { padding: 14px 0; }
+  .toc summary {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--eyebrow);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+  }
+  .toc summary::-webkit-details-marker { display: none; }
+  .toc summary::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-right: 1.5px solid var(--eyebrow);
+    border-bottom: 1.5px solid var(--eyebrow);
+    transform: rotate(-45deg);
+    transition: transform .18s ease;
+  }
+  .toc details[open] summary::before { transform: rotate(45deg); }
+  .toc details[open] summary { margin-bottom: 14px; }
+  .toc ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2;
+    column-gap: 40px;
+  }
+  .toc ul ul {
+    columns: 1;
+    padding-left: 14px;
+    margin-top: 4px;
+    border-left: 1px solid var(--border-soft);
+  }
+  .toc li {
+    margin: 4px 0;
+    break-inside: avoid;
+    font-size: 13.5px;
+  }
+  .toc a {
+    color: var(--muted-strong);
+    text-decoration: none;
+    transition: color .15s ease;
+  }
+  .toc a:hover { color: var(--accent); }
+
+  /* ───────────────────── section / tier ───────────────────── */
+  section.tier { margin: 80px 0 0; counter-increment: tier; }
+  section.tier > h2 {
+    font-size: 26px;
+    margin: 0 0 4px;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  section.tier > h2::before {
+    content: counter(tier, decimal-leading-zero);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--eyebrow);
+    display: block;
+    margin-bottom: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  section.tier > h2 + * { margin-top: 40px; }
+
+  /* ───────────────────── module ───────────────────── */
+  section.module {
+    background: var(--panel-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 22px 24px 24px;
+    margin: 14px 0 0;
+  }
+  section.module > h3 {
+    font-size: 15.5px;
+    margin: 0 0 14px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-weight: 600;
+    letter-spacing: -0.012em;
+  }
+  .badge {
+    font-size: 10.5px;
+    background: transparent;
+    color: var(--muted);
+    padding: 0;
+    border-radius: 0;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
+  }
+  .badge::before {
+    content: "";
+    display: inline-block;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--muted);
+    margin-right: 8px;
+    vertical-align: middle;
+    opacity: 0.6;
+  }
+
+  /* ───────────────────── button rows ───────────────────── */
+  ul.buttons { list-style: none; margin: 0; padding: 0; }
+  ul.buttons > li {
+    padding: 14px 48px 14px 18px;
+    margin: 0 -16px 0 -18px;
+    border-top: 1px solid var(--border-soft);
+    border-radius: 6px;
+    transition: background .14s ease;
+    position: relative;
+  }
+  ul.buttons > li:first-child { border-top: 0; padding-top: 8px; margin-top: -4px; }
+  ul.buttons > li:hover { background: var(--hover-row); }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 8px;
+    row-gap: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 15.5px;
+    letter-spacing: -0.008em;
+    line-height: 1.3;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .label::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    opacity: 0.45;
+    flex: none;
+  }
+  .ctx { display: none; }
+
+  .on-page {
+    order: 1;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+    line-height: 1.4;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .on-page::before {
+    content: "On";
+    text-transform: uppercase;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--eyebrow);
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(127, 127, 127, 0.08);
+    line-height: 1;
+  }
+  .desc {
+    flex-basis: 100%;
+    width: 100%;
+    min-width: 100%;
+    order: 2;
+    color: var(--muted-strong);
+    margin-top: 10px;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .path {
+    flex-basis: 100%;
+    width: 100%;
+    order: 3;
+    font-family: ui-monospace, "JetBrains Mono", "SF Mono", SFMono-Regular,
+                 Menlo, Consolas, monospace;
+    font-size: 10px;
+    background: transparent;
+    padding: 0;
+    color: var(--eyebrow);
+    letter-spacing: -0.005em;
+    word-break: break-all;
+    margin-top: 12px;
+    font-weight: 400;
+    opacity: 0.55;
+  }
+  ul.buttons > li:hover .path { opacity: 0.85; }
+  .route {
+    flex-basis: 100%;
+    width: 100%;
+    order: 4;
+    font-family: ui-monospace, "JetBrains Mono", "SF Mono", SFMono-Regular,
+                 Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--accent-soft);
+    background: transparent;
+    padding: 0;
+    letter-spacing: -0.01em;
+    word-break: break-all;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* ───────────────────── note / caveats ───────────────────── */
+  .note {
+    margin-top: 24px;
+    padding: 18px 22px;
+    background: var(--accent-tint);
+    border: 0;
+    border-left: 2px solid var(--accent);
+    border-radius: 4px;
+    color: var(--muted-strong);
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .note strong { color: var(--text); font-weight: 600; }
+  .note ul { margin: 0; padding-left: 20px; }
+  .note li { margin: 4px 0; }
+  .note code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: rgba(255,255,255,0.04);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--muted-strong);
+  }
+  @media (prefers-color-scheme: light) {
+    .note code { background: rgba(0,0,0,0.04); }
+  }
+
+  /* ───────────────────── footer ───────────────────── */
+  footer {
+    margin-top: 96px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-soft);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  footer code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--muted-strong);
+  }
+
+  /* ───────────────────── hidden ───────────────────── */
+  ul.buttons > li.hidden,
+  section.module.hidden { display: none; }
+
+  /* paths/routes are hidden by default — revealed per-row via .expanded */
+  .path, .route { display: none; }
+  ul.buttons > li.expanded .path,
+  ul.buttons > li.expanded .route { display: block; }
+
+  /* per-row expander */
+  .expand-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 8px;
+    opacity: 0.35;
+    transition: opacity .15s ease, color .15s ease, background .15s ease;
+    display: grid;
+    place-items: center;
+  }
+  .expand-btn::before {
+    content: "+";
+    font-weight: 300;
+    transition: transform .2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    line-height: 1;
+  }
+  ul.buttons > li:hover .expand-btn { opacity: 0.7; }
+  .expand-btn:hover {
+    opacity: 1 !important;
+    color: var(--text);
+    background: rgba(127, 127, 127, 0.1);
+  }
+  ul.buttons > li.expanded .expand-btn {
+    opacity: 0.95;
+    color: var(--accent);
+    background: var(--accent-tint);
+  }
+  ul.buttons > li.expanded .expand-btn::before { transform: rotate(45deg); }
+
+  /* responsive */
+  @media (max-width: 640px) {
+    body { padding: 32px 0 64px; }
+    .wrap { padding: 0 20px; }
+    h1 { font-size: 30px; }
+    .stats { gap: 24px; flex-wrap: wrap; }
+    section.tier { margin-top: 56px; }
+    section.tier > h2 { font-size: 22px; }
+    .toc ul { columns: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Designer · Audit</div>
+  <h1>Primary save buttons</h1>
+  <p>Inventory of save / create / apply / publish / update buttons styled as primary (blue background, light text) across the FlowX Designer app.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="stat-total">—</div><div class="key">Total</div></div>
+    <div class="stat"><div class="num" id="stat-inpage">—</div><div class="key">In-page</div></div>
+    <div class="stat"><div class="num" id="stat-modal">—</div><div class="key">In modals</div></div>
+    <div class="stat"><div class="num" id="stat-save">—</div><div class="key">Labeled “Save”</div></div>
+  </div>
+
+  <div class="controls">
+    <label class="switch" for="saveOnly">
+      <input type="checkbox" id="saveOnly" checked />
+      <span class="slider"></span>
+    </label>
+    <label class="toggle-label" for="saveOnly">Only show buttons labeled “Save”</label>
+    <span class="count" id="count"></span>
+  </div>
+</header>
+
+<nav class="toc">
+  <details>
+    <summary>Contents</summary>
+  <ul>
+    <li><a href="#inpage">In-page saves</a>
+      <ul>
+        <li><a href="#ip-process">Process / BPMN editor</a></li>
+        <li><a href="#ip-node-actions">Node actions / action editor</a></li>
+        <li><a href="#ip-integration">Integrations</a></li>
+        <li><a href="#ip-projects">Projects — Active Policy</a></li>
+        <li><a href="#ip-templates">Notification &amp; Document Templates</a></li>
+        <li><a href="#ip-settings">Application Settings</a></li>
+        <li><a href="#ip-theme">Theme</a></li>
+        <li><a href="#ip-customcomp">Custom Components</a></li>
+        <li><a href="#ip-reusable">Reusable Resources</a></li>
+        <li><a href="#ip-workspace">Workspace / Org Admin</a></li>
+        <li><a href="#ip-uiflow">UI Flow</a></li>
+      </ul>
+    </li>
+    <li><a href="#modal">Modal saves</a>
+      <ul>
+        <li><a href="#m-process">Process / BPMN editor</a></li>
+        <li><a href="#m-datamodel">Data Model Builder</a></li>
+        <li><a href="#m-projects">Projects</a></li>
+        <li><a href="#m-integration">Integrations · Data Sources</a></li>
+        <li><a href="#m-integration-workflow">Integrations · Workflows</a></li>
+        <li><a href="#m-ui-designer">UI Designer</a></li>
+        <li><a href="#m-views">Views / UI Flow / Custom Components</a></li>
+        <li><a href="#m-templates">Document &amp; Notification Templates</a></li>
+        <li><a href="#m-settings">Application Settings</a></li>
+        <li><a href="#m-workspace">Workspace / Org Admin</a></li>
+        <li><a href="#m-reusable">Reusable Resources</a></li>
+        <li><a href="#m-ai">AI</a></li>
+        <li><a href="#m-shared">Shared (cross-feature)</a></li>
+      </ul>
+    </li>
+    <li><a href="#caveats">Caveats</a></li>
+  </ul>
+  </details>
+</nav>
+
+<section class="tier" id="inpage">
+  <h2>In-page saves</h2>
+
+  <section class="module" id="ip-process">
+    <h3>Process / BPMN editor <span class="badge">6 buttons</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Processes · Process Settings · Process Name</span><span class="label">Save Process Name</span> <span class="path">apps/designer/src/app/modules/process-details/pages/process-settings/process-settings.component.html:44</span> <span class="route">/process/:id/settings</span><div class="desc">Saves the process name in the Process Name tab.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Processes · Process Settings · Task Management</span><span class="label">Save changes</span><span class="ctx"> (Task Management) </span><span class="path">apps/designer/src/app/modules/process-details/pages/process-settings/process-settings.component.html:124</span> <span class="route">/process/:id/settings</span><div class="desc">Saves task container URL and view columns.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Processes · Process Settings · Data Search</span><span class="label">Save Changes</span><span class="ctx"> (Data Search) </span><span class="path">apps/designer/src/app/modules/process-details/pages/process-settings/process-settings.component.html:156</span> <span class="route">/process/:id/settings</span><div class="desc">Saves key identifiers for process data search.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Processes · Process Settings · General</span><span class="label">Save settings</span><span class="ctx"> (General) </span><span class="path">apps/designer/src/app/modules/process-details/components/process-settings-general/process-settings-general.component.html:111</span> <span class="route">/process/:id/settings</span><div class="desc">Saves platform, read-only, reporting, general data, expiry time.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Processes · Process Settings · Permissions</span><span class="label">Save permissions</span> <span class="path">apps/designer/src/app/modules/process-details/components/process-settings-permissions/process-settings-permissions.component.html:136</span> <span class="route">/process/:id/settings</span><div class="desc">Saves swimlane operation role permissions.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Processes · BPMN editor · Area Settings panel (side panel)</span><span class="label">Save</span><span class="ctx"> (Area Settings) </span><span class="path">apps/designer/src/app/modules/process-details/components/area-settings-panel/area-settings.component.html:154</span><div class="desc">Saves area configuration in the BPMN canvas overlay/side panel.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-node-actions">
+    <h3>Node actions / action editor <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Processes · BPMN editor · Action edit panel (side panel)</span><span class="label">Save</span> <span class="path">apps/designer/src/app/modules/node-actions/components/action-edit/action-edit.component.html:3</span><div class="desc">Saves a node action's configuration; side panel of the BPMN editor.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-integration">
+    <h3>Integrations <span class="badge">4 buttons</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Integrations · Data Sources · FlowX Database / Unmanaged MongoDB · Operation editor</span><span class="label">Save</span><span class="ctx"> (Operation Details) </span><span class="path">apps/designer/src/app/modules/integration-designer/components/operation-details-page/operation-details-page.component.html:84</span> <span class="route">/integration/systems/:systemId/endpoints/:endpointId/operations/:operationId</span><div class="desc">Saves REST operation config (path, params, request/response).</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Integrations · Data Sources · External File Storage · Operation editor</span><span class="label">Save</span><span class="ctx"> (File Operation) </span><span class="path">apps/designer/src/app/modules/integration-designer/components/file-operation-details-page/file-operation-details-page.component.html:74</span> <span class="route">/integration/systems/:systemId/file-operations/:operationId</span><div class="desc">Saves file upload/download operation config.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Integrations · Data Sources · Oracle Database · SQL Operation editor</span><span class="label">Save</span><span class="ctx"> (SQL Operation) </span><span class="path">apps/designer/src/app/modules/integration-designer/components/sql-operation-details-page/sql-operation-details-page.component.html:62</span> <span class="route">/integration/systems/:systemId/sql-operations/:operationId</span><div class="desc">Saves SQL operation (query, params, schema).</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Integrations · Proxy Connections · Connection editor</span><span class="label">Save</span><span class="ctx"> (Proxy Connection) </span><span class="path">apps/designer/src/app/modules/integration-designer/components/proxy-connection-details/proxy-connection-details.component.html:73</span> <span class="route">/integration/proxy-connections/:connectionId</span><div class="desc">Saves proxy connection details.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-projects">
+    <h3>Projects — Active Policy <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Runtime Settings · Active Policy</span><span class="label">Update</span> <span class="path">apps/designer/src/app/modules/projects/components/active-policy/active-policy.component.html:216</span> <span class="route">/projects/:projectId/active-policy</span><div class="desc">Saves the global active policy (fixed version vs. latest-on-branch).</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-templates">
+    <h3>Notification &amp; Document Templates <span class="badge">2 buttons</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">CMS · Notification Templates · Body</span><span class="label">Save</span><span class="ctx"> (Notification Template) </span><span class="path">apps/designer/src/app/modules/notification-templates/notification-template/notification-template.component.html:168</span> <span class="route">/notifications/:id</span><div class="desc">Saves template body, type, strategy, per-language subject/body.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">CMS · Document Templates · Body</span><span class="label">Save</span><span class="ctx"> (Document Template) </span><span class="path">apps/designer/src/app/modules/document-templates/document-template/document-template.component.html:84</span> <span class="route">/documents/:id</span><div class="desc">Saves per-language document template content.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-settings">
+    <h3>Application Settings <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Version Settings</span><span class="label">Save</span> <span class="path">apps/designer/src/app/modules/settings/application-settings.component.html:69</span> <span class="route">/settings</span><div class="desc">Saves app version settings across General / End-User Roles / Formatting / Languages tabs.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-theme">
+    <h3>Theme <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Design Assets · Themes</span><span class="label">Save</span> <span class="path">apps/designer/src/app/modules/theme/theme-page.component.html:21</span> <span class="route">/themes/:themeId</span><div class="desc">Saves theme (colors, typography, spacing, etc.).</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-customcomp">
+    <h3>Custom Components <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Reusable Resources · Custom Components · Editor</span><span class="label">Save</span> <span class="path">apps/designer/src/app/modules/custom-components/pages/custom-component-details/custom-component-details.component.html:39</span> <span class="route">/custom-components/:componentId</span><div class="desc">Saves custom component source (TS/HTML/CSS/module).</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-reusable">
+    <h3>Reusable Resources <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Reusable Resources · Functions · Editor</span><span class="label">Save</span><span class="ctx"> (Reusable Function) </span><span class="path">apps/designer/src/app/modules/reusable-resources/reusable-functions/components/reusable-function-details/reusable-function-details.component.html:30</span> <span class="route">/reusable-functions/:functionId</span><div class="desc">Saves reusable function (language, I/O, body).</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-workspace">
+    <h3>Workspace / Org Admin <span class="badge">3 buttons</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Design Assets · Branding</span><span class="label">Save</span><span class="ctx"> (Organisation Branding) </span><span class="path">apps/designer/src/app/modules/workspaces/organisation-admin/organization-branding/organization-branding.component.html:302</span> <span class="route">/organization/branding</span><div class="desc">Saves org branding (logo, layout, footer, sidebar, colors).</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">Access Management · Roles · Permissions</span><span class="label">Save changes</span><span class="ctx"> (Role Permissions) </span><span class="path">apps/designer/src/app/modules/workspaces/shared/workspaces-roles/role-permissions/role-permissions.component.html:43</span><div class="desc">Saves workspace role permission changes.</div></div>
+      </li>
+      <li>
+        <div class="meta"><span class="on-page">AI Settings · Defaults & Fallbacks</span><span class="label">Save Changes</span><span class="ctx"> (Defaults &amp; Fallbacks) </span><span class="path">apps/designer/src/app/modules/workspaces/organisation-admin/defaults-and-fallbacks/defaults-and-fallbacks.component.html:163</span><div class="desc">Saves org-admin defaults and fallbacks configuration.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="ip-uiflow">
+    <h3>UI Flow <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li>
+        <div class="meta"><span class="on-page">Reusable Resources · UI Flows · Permissions</span><span class="label">Save Permissions</span> <span class="path">apps/designer/src/app/modules/ui-flow/components/ui-flow-permissions/ui-flow-permissions.component.html:62</span><div class="desc">Saves UI flow permissions configuration.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="note"><strong>Heads-up:</strong> the <em>UI Designer</em> module autosaves via <code>app-autosave-indicator</code> (in <code>node-ui-header.component.html</code>) — no explicit primary save button.</div>
+</section>
+
+<section class="tier" id="modal">
+  <h2>Modal saves</h2>
+
+  <section class="module" id="m-process">
+    <h3>Process / BPMN editor <span class="badge">8 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Processes · Create process modal</span><span class="label">Create</span> <span class="path">modules/process/components/new-process-dialog/new-process-dialog.component.html:64</span><div class="desc">Create new workflow process.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Process Instances · Modify Variables modal</span><span class="label">Save</span> <span class="path">modules/process/components/process-instance-variables-editor-modal/process-instance-variables-editor-modal.component.html:95</span><div class="desc">Override process-instance variables at runtime.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Processes · Start process modal</span><span class="label">Start</span> <span class="path">modules/process/components/start-data-dialog/start-data-dialog.component.html:191</span><div class="desc">Start process with initial data.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Processes · Submit changes modal</span><span class="label">Save</span><span class="ctx"> (Submit Changes) </span><span class="path">modules/process-details/components/submit-changes-modal/submit-changes-modal.component.html:48</span><div class="desc">Commit workflow changes with a message.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Processes · Create new branch modal</span><span class="label">Create</span><span class="ctx"> (New Branch) </span><span class="path">modules/process-details/components/new-branch-modal/new-branch-modal.component.html:47</span><div class="desc">Create feature branch for a process.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Processes · Tag a build modal</span><span class="label">Save</span><span class="ctx"> (Tag Build) </span><span class="path">modules/process-details/components/tag-build-modal/tag-build-modal.component.html:126</span><div class="desc">Publish a tagged build (major.minor.patch).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Processes · Merge branch modal</span><span class="label">Confirm / Merge</span> <span class="path">modules/process-details/components/merge-branch-modal/merge-branch-modal.component.html:97</span><div class="desc">Merge feature branch into main.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Processes · Swimlane allocations modal</span><span class="label">Save</span><span class="ctx"> (Swimlane Allocations) </span><span class="path">modules/allocations/swimlane-allocations-modal/swimlane-allocations-modal.component.html:130</span><div class="desc">Save role allocations in BPMN swimlanes.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-datamodel">
+    <h3>Data Model Builder <span class="badge">4 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Data Model · Attribute modal</span><span class="label">Save</span><span class="ctx"> (Attribute) </span><span class="path">modules/data-model-builder/components/data-model-attribute-modal/data-model-attribute-modal.component.html:46</span><div class="desc">Saves new or edited data-model attribute.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Data Model · Confirmation modal</span><span class="label">Confirm</span><span class="ctx"> (Data-type action) </span><span class="path">modules/data-model-builder/components/data-type-action-confirmation-modal/data-type-action-confirmation-modal.component.html:50</span><div class="desc">Confirms data-type action (create/edit/delete).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Data Model · Paste confirmation modal</span><span class="label">Paste</span> <span class="path">modules/data-model-builder/components/copy-paste-entity-confirmation-modal/copy-paste-entity-confirmation-modal.component.html:33</span><div class="desc">Confirms pasting a copied data-model entity.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Data Model · Edit confirmation modal</span><span class="label">Update</span><span class="ctx"> (Edit Attribute) </span><span class="path">modules/data-model-builder/components/edit-attribute-confirmation-modal/edit-attribute-confirmation-modal.component.html:37</span><div class="desc">Confirms attribute edits.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-projects">
+    <h3>Projects <span class="badge">10 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Workspaces · Create application modal</span><span class="label">Create</span><span class="ctx"> (Application) </span><span class="path">modules/projects/components/new-application-modal/new-application-modal.component.html:115</span><div class="desc">Creates new application.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Confirm ownership change modal</span><span class="label">Confirm</span><span class="ctx"> (Owner change) </span><span class="path">modules/projects/components/new-application-modal/new-application-modal.component.html:155</span><div class="desc">Confirms ownership change when editing application owner.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">CMS · Enumerations · Create modal</span><span class="label">Create</span><span class="ctx"> (Enumeration) </span><span class="path">modules/projects/components/new-enumeration-modal/new-enumeration-modal.component.html:57</span><div class="desc">Creates new enumeration (business data list).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">CMS · Enumerations · Value editor modal</span><span class="label">Save / Create</span><span class="ctx"> (Content Value) </span><span class="path">modules/cms/pages/content-value-edit/content-value-edit.component.html:114</span><div class="desc">Saves enumeration / config-parameter translations.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · UI Templates · Create modal</span><span class="label">Create</span><span class="ctx"> (UI Template) </span><span class="path">modules/projects/components/new-ui-template-modal/new-ui-template-modal.component.html:71</span><div class="desc">Creates new UI template.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Configuration Parameters · Create modal</span><span class="label">Create</span><span class="ctx"> (Config Parameter) </span><span class="path">modules/projects/components/new-configuration-parameter-modal/new-configuration-parameter-modal.component.html:119</span><div class="desc">Creates configuration parameter for runtime settings.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Runtime Settings · Apply Indexes modal</span><span class="label">Apply</span><span class="ctx"> (Indexes) </span><span class="path">modules/projects/components/apply-indexes-modal/apply-indexes-modal.component.html:61</span><div class="desc">Applies database indexes to selected data-model entities.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Runtime Settings · Active Policy · Add Override modal</span><span class="label">Create / Update</span><span class="ctx"> (Policy Override) </span><span class="path">modules/projects/components/active-policy/active-policy-overrides/policy-override-modal/policy-override-modal.component.html:352</span><div class="desc">Creates or updates policy override.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Configure Params Overrides · Override modal</span><span class="label">Create / Update</span><span class="ctx"> (Config Parameter Override) </span><span class="path">modules/projects/components/configuration-parameters-overrides/modal/configuration-parameter-override-modal.component.html:140</span><div class="desc">Creates or updates configuration-parameter override.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Runtime Settings · Active Policy · Edit Override modal</span><span class="label">Save Changes</span><span class="ctx"> (Policy Override — edit mode) </span><span class="path">modules/projects/components/active-policy/active-policy-overrides/policy-override-modal/policy-override-modal.component.html:355</span><div class="desc">Conditional label of the policy-override modal CTA when editing an existing override.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-integration">
+    <h3>Integrations · Data Sources <span class="badge">11 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Restful System · Endpoint modal</span><span class="label">Create / Update</span><span class="ctx"> (Endpoint) </span><span class="path">modules/integration-designer/components/endpoint-modal/endpoint-modal.component.html:83</span><div class="desc">Creates or updates HTTP endpoint (REST configuration).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Add / Edit System modal</span><span class="label">Create / Update</span><span class="ctx"> (System) </span><span class="path">modules/integration-designer/components/system-modal/system-modal.component.html:167</span><div class="desc">Creates or updates datasource system (DB, API, file, etc.).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Workflow modal</span><span class="label">Create / Update</span><span class="ctx"> (Workflow) </span><span class="path">modules/integration-designer/components/workflow-modal/workflow-modal.component.html:65</span><div class="desc">Creates or updates integration workflow definition.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Proxy Connections · Modal</span><span class="label">Create / Update</span><span class="ctx"> (Proxy Connection) </span><span class="path">modules/integration-designer/components/proxy-connection-modal/proxy-connection-modal.component.html:37</span><div class="desc">Creates or updates proxy connection configuration.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · FlowX Database · DB Operation modal</span><span class="label">Create / Update</span><span class="ctx"> (DB Operation) </span><span class="path">modules/integration-designer/components/system-details-page/db-system-details/operation-modal/operation-modal.component.html:93</span><div class="desc">Creates or updates a database operation.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Oracle Database · Operation modal</span><span class="label">Create / Update</span><span class="ctx"> (SQL Operation) </span><span class="path">modules/integration-designer/components/system-details-page/relational-db-system-details/sql-operation-modal/sql-operation-modal.component.html:63</span><div class="desc">Creates or updates SQL operation with custom query.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Knowledge Base · Store modal</span><span class="label">Create / Update</span><span class="ctx"> (KB Store) </span><span class="path">modules/integration-designer/components/system-details-page/kb-system-details/kb-store-modal/kb-store-modal.component.html:88</span><div class="desc">Creates or updates knowledge-base store config.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Knowledge Base · Metadata modal</span><span class="label">Save</span><span class="ctx"> (KB Metadata) </span><span class="path">modules/integration-designer/components/system-details-page/kb-system-details/kb-metadata-modal/kb-metadata-modal.component.html:104</span><div class="desc">Saves knowledge-base metadata configuration.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Add Collection Index modal</span><span class="label">Add</span><span class="ctx"> (Index) </span><span class="path">modules/integration-designer/components/indexes/add-index-modal/add-index-modal.component.html:24</span><div class="desc">Adds database index to entity field.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Add Compound Index modal</span><span class="label">Add</span><span class="ctx"> (Compound Index) </span><span class="path">modules/integration-designer/components/indexes/add-index-modal/add-index-modal.component.html:134</span><div class="desc">Adds compound index on multiple fields.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Data Sources · Knowledge Base · Edit Metadata modal</span><span class="label">Edit</span><span class="ctx"> (KB Metadata details) </span><span class="path">modules/integration-designer/components/kb-store-details-page/kb-edit-metadata-modal/kb-edit-metadata-modal.component.html:57</span><div class="desc">Edits knowledge-base metadata.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-integration-workflow">
+    <h3>Integrations · Workflows <span class="badge">19 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Test Workflow modal</span><span class="label">Test</span><span class="ctx"> (Test Workflow) </span><span class="path">modules/integration-designer/workflow-integration/components/test-workflow-modal/test-workflow-modal.component.html:126</span><div class="desc">Executes workflow test with test data.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Datasets · New modal</span><span class="label">Create</span><span class="ctx"> (Dataset) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/datasets/dataset-form-modal/dataset-form-modal.component.html:101</span><div class="desc">Creates or updates evaluation dataset.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Datasets · New Test Case modal</span><span class="label">Create</span><span class="ctx"> (Test Case) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/datasets/test-case-modal/test-case-modal.component.html:78</span><div class="desc">Creates or updates test case in dataset.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Experiment modal</span><span class="label">Save</span><span class="ctx"> (Experiment) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/experiments/experiment-modal/experiment-modal.component.html:245</span><div class="desc">Creates or updates evaluation experiment config.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Experiments · Node Snapshot Compare</span><span class="label">Save</span><span class="ctx"> (Node Snapshot Compare) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/experiments/experiment-compare/node-snapshot-compare-modal/node-snapshot-compare-modal.component.html:62</span><div class="desc">Saves snapshot comparison result.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Experiments · Test Case Compare</span><span class="label">Save</span><span class="ctx"> (Test Case Compare) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/experiments/experiment-compare/tc-compare-modal/tc-compare-modal.component.html:123</span><div class="desc">Saves test-case comparison result.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Experiments · Node Snapshot</span><span class="label">Save</span><span class="ctx"> (Node Snapshot) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/experiments/node-snapshot-modal/node-snapshot-modal.component.html:38</span><div class="desc">Saves node execution snapshot.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Experiments · Test Case Result</span><span class="label">Save</span><span class="ctx"> (Test Case Result) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/experiments/tc-result-modal/tc-result-modal.component.html:124</span><div class="desc">Saves test-case execution result.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Knowledge Base · Metadata Filters modal</span><span class="label">Add</span><span class="ctx"> (KB Metadata Filters) </span><span class="path">modules/integration-designer/workflow-integration/components/kb-metadata-filters-modal/kb-metadata-filters-modal.component.html:33</span><div class="desc">Adds KB metadata filter.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Knowledge Base · Metadata Filters modal</span><span class="label">Apply</span><span class="ctx"> (KB Metadata Filters) </span><span class="path">modules/integration-designer/workflow-integration/components/kb-metadata-filters-modal/kb-metadata-filters-modal.component.html:53</span><div class="desc">Applies selected KB metadata filters.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Knowledge Base · Metadata Values modal</span><span class="label">Add</span><span class="ctx"> (KB Metadata Values) </span><span class="path">modules/integration-designer/workflow-integration/components/kb-metadata-values-modal/kb-metadata-values-modal.component.html:51</span><div class="desc">Adds metadata value option.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Knowledge Base · Metadata Values modal</span><span class="label">Apply</span><span class="ctx"> (KB Metadata Values) </span><span class="path">modules/integration-designer/workflow-integration/components/kb-metadata-values-modal/kb-metadata-values-modal.component.html:69</span><div class="desc">Applies selected metadata values.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · URL Filters modal</span><span class="label">Add</span><span class="ctx"> (URL Filters) </span><span class="path">modules/integration-designer/workflow-integration/components/url-filters-modal/url-filters-modal.component.html:62</span><div class="desc">Adds URL filter for content filtering.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · URL Filters modal</span><span class="label">Apply</span><span class="ctx"> (URL Filters) </span><span class="path">modules/integration-designer/workflow-integration/components/url-filters-modal/url-filters-modal.component.html:81</span><div class="desc">Applies selected URL filters.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Knowledge Base · Metadata Filters modal</span><span class="label">Save Changes</span><span class="ctx"> (KB Metadata Filters) </span><span class="path">modules/integration-designer/workflow-integration/components/kb-metadata-filters-modal/kb-metadata-filters-modal.component.html:58</span><div class="desc">Persists KB metadata filter configuration.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · URL Filters modal</span><span class="label">Save Changes</span><span class="ctx"> (URL Filters) </span><span class="path">modules/integration-designer/workflow-integration/components/url-filters-modal/url-filters-modal.component.html:86</span><div class="desc">Persists URL filter configuration.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Reply Trigger form</span><span class="label">Save Trigger</span> <span class="path">modules/integration-designer/workflow-integration/components/reply-triggers/trigger-form/trigger-form.component.html:272</span><div class="desc">Saves reply-trigger configuration; shows "Saving..." while in flight.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Datasets · Edit Test Case modal</span><span class="label">Save</span><span class="ctx"> (Test Case — edit mode) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/datasets/test-case-modal/test-case-modal.component.html:83</span><div class="desc">Conditional label of the test-case modal CTA when editing (vs "Create" on new).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Integrations · Workflows · Datasets · Edit modal</span><span class="label">Save</span><span class="ctx"> (Dataset — edit mode) </span><span class="path">modules/integration-designer/workflow-integration/components/evals/datasets/dataset-form-modal/dataset-form-modal.component.html:106</span><div class="desc">Conditional label of the dataset-form modal CTA when editing (vs "Create" on new).</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-ui-designer">
+    <h3>UI Designer <span class="badge">4 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Reusable Resources · UI Templates · Extract modal</span><span class="label">Extract</span><span class="ctx"> (Reusable Template) </span><span class="path">modules/ui-designer/components/extract-reusable-ui-template-modal/extract-reusable-ui-template-modal.component.html:75</span><div class="desc">Extracts selected UI components into reusable template.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · UI Templates · Chat Display Type modal</span><span class="label">Create</span><span class="ctx"> (Chat Display Type) </span><span class="path">modules/ui-designer/components/chat-display-types-modal/chat-display-types-modal.component.html:77</span><div class="desc">Creates new chat display type configuration.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · UI Templates · Root Parameters modal</span><span class="label">Save / Apply</span><span class="ctx"> (Root Parameters) </span><span class="path">modules/ui-designer/components/config/root-parameters-modal/root-parameters-modal.component.html:176</span><div class="desc">Saves root-level UI template parameters.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · UI Templates · Data Mapping modal</span><span class="label">Save</span><span class="ctx"> (Reusable Template Data Mapping) </span><span class="path">modules/ui-designer/components/config/reusable-ui-template-data-mapping-modal-component/reusable-ui-template-data-mapping-modal-component.component.html:189</span><div class="desc">Saves the data-mapping for a reusable UI template (read-only mode shows "Close").</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-views">
+    <h3>Views / UI Flow / Custom Components <span class="badge">3 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Task Manager · Views · Add/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (View) </span><span class="path">modules/views/add-view-modal/add-view-modal.component.html:55</span><div class="desc">Creates or updates a view linked to a process.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · UI Flows · Create/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (UI Flow) </span><span class="path">modules/ui-flow/components/ui-flow-modal/ui-flow-modal.component.html:128</span><div class="desc">Creates or updates a UI flow definition.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · Custom Components · Create/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (Custom Component) </span><span class="path">modules/custom-components/components/custom-component-modal/custom-component-modal.component.html:109</span><div class="desc">Creates or updates custom component definition.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-templates">
+    <h3>Document &amp; Notification Templates <span class="badge">2 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">CMS · Document Templates · Test modal</span><span class="label">Download</span><span class="ctx"> (Test Document) </span><span class="path">modules/document-templates/components/test-document-modal/test-document-modal.component.html:38</span><div class="desc">Downloads generated test document.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">CMS · Notification Templates · Test modal</span><span class="label">Test</span><span class="ctx"> (Notification) </span><span class="path">modules/notification-templates/components/test-notification-modal/test-notification-modal.component.html:78</span><div class="desc">Tests notification template with sample data.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-settings">
+    <h3>Application Settings <span class="badge">2 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Version Settings · Languages · Add modal</span><span class="label">Add</span><span class="ctx"> (Language) </span><span class="path">modules/settings/add-language-modal.component.html:70</span><div class="desc">Adds new language to multi-language support.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Version Settings · End-User Roles · Create modal</span><span class="label">Create</span><span class="ctx"> (End-User Role) </span><span class="path">modules/settings/end-user-role-modal/end-user-role-modal.component.html:72</span><div class="desc">Creates end-user role for runtime access control.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-workspace">
+    <h3>Workspace / Org Admin <span class="badge">12 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Workspaces · Users · Create/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (User) </span><span class="path">modules/workspaces/shared/users/user-modal/user-modal.component.html:211</span><div class="desc">Creates or updates workspace user.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Users · Edit role modal</span><span class="label">Update</span><span class="ctx"> (User Role) </span><span class="path">modules/workspaces/shared/users/user-modal/user-modal.component.html:255</span><div class="desc">Updates user role / permissions.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Users · Invite modal</span><span class="label">Create</span><span class="ctx"> (Invite User) </span><span class="path">modules/workspaces/shared/users/invite-user-modal/invite-user-modal.component.html:149</span><div class="desc">Sends invitation to new workspace user.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Users · Bulk Import modal</span><span class="label">Bulk Invite</span> <span class="path">modules/workspaces/shared/users/bulk-invite-user-modal/bulk-invite-user-modal.component.html:107</span><div class="desc">Bulk invites multiple users.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Groups · Create/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (Group) </span><span class="path">modules/workspaces/shared/groups/group-modal/group-modal.component.html:78</span><div class="desc">Creates or updates a user group.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Groups · Add Members modal</span><span class="label">Add</span><span class="ctx"> (Users to Group) </span><span class="path">modules/workspaces/shared/groups/group-access-management/add-users-to-group-modal/add-users-to-group-modal.component.html:103</span><div class="desc">Adds selected users to group.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Workspaces · Roles · Create/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (Workspace Role) </span><span class="path">modules/workspaces/shared/workspaces-roles/new-role-modal/new-role-modal.component.html:112</span><div class="desc">Creates or updates workspace role definition.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Organization Settings · Workspaces · Create modal</span><span class="label">Create / Update</span><span class="ctx"> (Workspace) </span><span class="path">modules/workspaces/organisation-admin/new-workspace-modal/new-workspace-modal.component.html:112</span><div class="desc">Creates new workspace organization.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Organization Settings · Workspaces · Add Users modal</span><span class="label">Add</span><span class="ctx"> (Users/Groups to Workspace) </span><span class="path">modules/workspaces/organisation-admin/add-users-and-groups-to-workspace-modal/add-users-and-groups-to-workspace-modal.component.html:47</span><div class="desc">Adds users / groups to workspace.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">AI Settings · Model Providers · Configure modal</span><span class="label">Configure</span><span class="ctx"> (Model Provider) </span><span class="path">modules/workspaces/organisation-admin/model-providers/configure-provider-modal/configure-provider-modal.component.html:218</span><div class="desc">Configures AI model provider (OpenAI, Anthropic, ...).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">AI Settings · Model Providers · Manage Models modal</span><span class="label">Manage</span><span class="ctx"> (Models) </span><span class="path">modules/workspaces/organisation-admin/model-providers/manage-models-modal/manage-models-modal.component.html:110</span><div class="desc">Manages available AI models per provider.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">AI Settings · Model Providers · Manage Models modal</span><span class="label">Save Whitelist</span> <span class="path">modules/workspaces/organisation-admin/model-providers/manage-models-modal/manage-models-modal.component.html:117</span><div class="desc">Persists the LLM model whitelist; shows "Saving..." while in flight.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-reusable">
+    <h3>Reusable Resources <span class="badge">1 button</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Reusable Resources · Functions · Create/Edit modal</span><span class="label">Create / Update</span><span class="ctx"> (Reusable Function) </span><span class="path">modules/reusable-resources/reusable-functions/components/reusable-function-modal/reusable-function-modal.component.html:81</span><div class="desc">Creates or updates reusable function definition.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-ai">
+    <h3>AI <span class="badge">4 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Reusable Resources · AI · Set Source modal</span><span class="label">Upload / Save</span><span class="ctx"> (Source) </span><span class="path">modules/ai/components/source-modal/source-modal.component.html:62</span><div class="desc">Uploads AI training source documents.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">AI Chat · Feedback modal</span><span class="label">Submit Feedback</span> <span class="path">modules/ai/modules/chat/components/ai-feedback-modal/ai-feedback-modal.component.html:57</span><div class="desc">Submits feedback on AI-generated content.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Reusable Resources · AI · Set Source modal</span><span class="label">Save Source Settings</span> <span class="path">modules/ai/components/source-modal/source-modal.component.html:66</span><div class="desc">Saves AI source configuration (second CTA in the source modal).</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">AI Agent Designer · Edit Data Model modal</span><span class="label">Save &amp; Close</span><span class="ctx"> (AI Data Model Modify) </span><span class="path">modules/ai/agents/designer/components/ai-data-model-modify-modal/ai-data-model-modify-modal.component.html:100</span><div class="desc">Persists AI data-model modifications and closes the modal.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="module" id="m-shared">
+    <h3>Shared (cross-feature) <span class="badge">7 buttons</span></h3>
+    <ul class="buttons">
+      <li><div class="meta"><span class="on-page">Shared · Save Resource Name modal</span><span class="label">Add / Update</span><span class="ctx"> (Save Resource Name) </span><span class="path">shared/components/save-resource-name/save-resource-name.component.html:53</span><div class="desc">Generic modal for saving / updating resource names across the app.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Shared · Duplicate Resource modal</span><span class="label">Create</span><span class="ctx"> (Duplicate Resource) </span><span class="path">shared/components/duplicate-resource/duplicate-resource.component.html:57</span><div class="desc">Duplicates selected resource with a new name.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Shared · Copy Resource modal</span><span class="label">Continue</span><span class="ctx"> (Copy Resource) </span><span class="path">shared/components/copy-resource/copy-resource.component.html:86</span><div class="desc">Advances to next step in copy-resource workflow.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Shared · Copy Resource modal</span><span class="label">Exit without copying</span><span class="ctx"> (Copy Resource) </span><span class="path">shared/components/copy-resource/copy-resource.component.html:102</span><div class="desc">Exits copy workflow without importing dependencies.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Shared · Data Property modal</span><span class="label">Add / Update</span><span class="ctx"> (Data Property) </span><span class="path">shared/components/data-structure-builder/data-property-modal.component.html:128</span><div class="desc">Adds or updates a data-structure property.</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Shared · Data Property modal</span><span class="label">Save</span><span class="ctx"> (Data Property) </span><span class="path">shared/components/data-structure-builder/data-property-modal.component.html:133</span><div class="desc">Secondary CTA in the data-property modal explicitly labeled "Save".</div></div>
+      </li>
+      <li><div class="meta"><span class="on-page">Shared · Confirmation modal</span><span class="label">Confirm</span><span class="ctx"> (Generic confirmation) </span><span class="path">shared/components/confirmation-modal/confirmation-modal.component.html:85</span><div class="desc">Generic confirmation modal used for destructive actions.</div></div>
+      </li>
+    </ul>
+    <div class="note" style="margin-top:14px;">Live Evals POC modals omitted per project scoping.</div>
+  </section>
+</section>
+
+<section class="tier" id="caveats">
+  <h2>Caveats</h2>
+  <div class="note">
+    <ul>
+      <li>Entries were found via primary-button markup (<code>mat-flat-button color="primary"</code>, <code>flx-button</code> default/primary, <code>bg-primary</code> / <code>bg-info-*</code>). Visual rendering depends on the active theme; in the default FlowX theme these resolve to a blue background with light text.</li>
+      <li>Generic confirmation modals styled as primary (e.g., <em>Confirm</em>, <em>Paste</em>) are listed. Pure destructive confirms like "Delete" buttons styled as primary were excluded from the main lists — ping if you want them too.</li>
+      <li>A "Save" label alone doesn't always mean it persists to the backend — some modals just commit changes back into the parent form's in-memory state.</li>
+      <li>Paths are repo-relative; file paths use <code>:LINE</code> suffix for direct navigation in most IDEs.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  Generated from a sweep of <code>apps/designer/src/app/</code> on the <code>poc/live-evals</code> branch. Live Evals POC paths are intentionally omitted.
+</footer>
+
+</div>
+<script>
+  (function () {
+    const toggle = document.getElementById('saveOnly');
+    const countEl = document.getElementById('count');
+    const items = Array.from(document.querySelectorAll('ul.buttons > li'));
+    const modules = Array.from(document.querySelectorAll('section.module'));
+    const total = items.length;
+
+    const inPageCount = document.querySelectorAll('#inpage ul.buttons > li').length;
+    const modalCount  = document.querySelectorAll('#modal ul.buttons > li').length;
+    const saveCount = items.filter(li => /save/i.test(li.querySelector('.label')?.textContent || '')).length;
+
+    const setStat = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
+    setStat('stat-total', total);
+    setStat('stat-inpage', inPageCount);
+    setStat('stat-modal', modalCount);
+    setStat('stat-save', saveCount);
+
+    function apply() {
+      const saveOnly = toggle.checked;
+      let visible = 0;
+      items.forEach((li) => {
+        const label = li.querySelector('.label')?.textContent || '';
+        const isSave = /save/i.test(label);
+        const show = !saveOnly || isSave;
+        li.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      modules.forEach((mod) => {
+        const anyVisible = mod.querySelectorAll('ul.buttons > li:not(.hidden)').length > 0;
+        mod.classList.toggle('hidden', !anyVisible);
+      });
+      countEl.textContent = saveOnly
+        ? `${visible} of ${total} shown`
+        : `${total} shown`;
+    }
+
+    toggle.addEventListener('change', apply);
+    apply();
+
+    // inject a subtle expand button per row
+    items.forEach((li) => {
+      if (!li.querySelector('.path') && !li.querySelector('.route')) return;
+      const btn = document.createElement('button');
+      btn.className = 'expand-btn';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'Show file path');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.addEventListener('click', () => {
+        const isOpen = li.classList.toggle('expanded');
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        btn.setAttribute('aria-label', isOpen ? 'Hide file path' : 'Show file path');
+      });
+      li.prepend(btn);
+    });
+  })();
+</script>
+</body>
+</html>
