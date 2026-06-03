@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joke of the day</title>
+  <style>
+    /* FlowX tokens (read from /references/foundations/*.json):
+       - body bg          → neutrals-50      #f7f8f9
+       - card bg          → grays-50         #ffffff
+       - card border      → neutrals-200     #cbd1db
+       - eyebrow text     → neutrals-500     #64748b
+       - body text        → neutrals-900     #1d232c
+       - punchline accent → blue-500         #006bd8
+       - card shadow      → elevation-m      0 8px 16px #1634621a
+       - card radius      → radius-12        12px
+       - paddings/gaps    → spacing-16/24/32
+       - eyebrow type     → xs-bold (10/12/700)
+       - setup type       → m-regular (14/24/400)
+       - punchline type   → l-bold (18/28/700)
+    */
+    :root {
+      --flowx-color-surface-secondary: #f7f8f9;
+      --flowx-color-surface-primary:   #ffffff;
+      --flowx-color-border-default:    #cbd1db;
+      --flowx-color-text-secondary:    #64748b;
+      --flowx-color-text-primary:      #1d232c;
+      --flowx-color-blue-500:          #006bd8;
+      --flowx-radius-12:               12px;
+      --flowx-space-16:                16px;
+      --flowx-space-24:                24px;
+      --flowx-space-32:                32px;
+      --flowx-elevation-m:             0 8px 16px #1634621a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--flowx-color-surface-secondary);
+      font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--flowx-color-text-primary);
+      display: grid;
+      place-items: center;
+      padding: var(--flowx-space-24);
+    }
+
+    .card {
+      background: var(--flowx-color-surface-primary);
+      border: 1px solid var(--flowx-color-border-default);
+      border-radius: var(--flowx-radius-12);
+      box-shadow: var(--flowx-elevation-m);
+      padding: var(--flowx-space-32);
+      max-width: 480px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--flowx-space-16);
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 10px;
+      line-height: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--flowx-color-text-secondary);
+    }
+
+    .setup {
+      margin: 0;
+      font-size: 14px;
+      line-height: 24px;
+      font-weight: 400;
+      color: var(--flowx-color-text-primary);
+    }
+
+    .punchline {
+      margin: 0;
+      font-size: 18px;
+      line-height: 28px;
+      font-weight: 700;
+      color: var(--flowx-color-blue-500);
+    }
+  </style>
+</head>
+<body>
+  <article class="card" aria-labelledby="eyebrow">
+    <p class="eyebrow" id="eyebrow">Joke of the day</p>
+    <p class="setup">Why do programmers prefer dark mode?</p>
+    <p class="punchline">Because light attracts bugs.</p>
+  </article>
+</body>
+</html>
