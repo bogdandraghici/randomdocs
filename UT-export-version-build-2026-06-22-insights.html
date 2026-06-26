@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Session Review — Export / download version &amp; build</title>
+<style>
+  :root{
+    --paper:#FBF8F1; --paper-2:#F3EEE2; --ink:#211F1B; --ink-soft:#5A554C;
+    --rule:#D8D1C0; --mark:#B23A2E; --amber:#9C7A1E; --green:#2E6F5E;
+    --blue:#3A5A78; --plum:#6E4A6B; --hl:#FBF1D9; --shadow:rgba(33,31,27,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Open Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    font-size:14px;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .mono{font-family:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+
+  header.mast{border-bottom:1px solid var(--rule);margin-top:36px;margin-bottom:16px}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+  h1{font-size:24px;line-height:1.2;margin:8px 0 6px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);font-size:14px;margin-bottom:6px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-bottom:8px}
+  .legend i{font-style:normal;display:inline-flex;align-items:center;gap:5px}
+  .sw{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .mast-row{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;border-top:1px solid var(--rule);margin-top:10px;padding:12px 0}
+  .meta{display:flex;gap:26px;flex-wrap:wrap;font-size:13px}
+  .meta b{font-size:18px;font-weight:600;display:block;line-height:1}
+  .meta span{color:var(--ink-soft);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+
+  nav.tabs{display:flex;gap:4px;margin:0;flex-wrap:wrap}
+  .tab{background:none;border:1px solid var(--rule);border-radius:999px;padding:7px 16px;font:inherit;font-size:13px;cursor:pointer;color:var(--ink-soft)}
+  .tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  /* How this works — two-lane handoff (You ⇄ Claude across a central spine) */
+  .how{max-width:1040px}
+  .lane-row{display:grid;grid-template-columns:1fr 56px 1fr;align-items:center}
+  .lane-row .l{display:flex;justify-content:flex-end}
+  .lane-row .r{display:flex;justify-content:flex-start}
+  .next-rule{display:flex;align-items:center;gap:14px;margin:10px 0 6px}
+  .next-rule .line{flex:1;border-top:1px dashed var(--rule)}
+  .next-rule .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+  .spine{align-self:stretch;position:relative;display:flex;align-items:center;justify-content:center}
+  .spine .seg{position:absolute;left:50%;width:2px;background:var(--rule);transform:translateX(-1px)}
+  .spine .seg.top{top:0;bottom:50%} .spine .seg.bot{top:50%;bottom:0}
+  .lane-row.future .spine .seg{background:none;border-left:2px dashed var(--rule)}
+  .avatar{position:relative;z-index:1;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 4px rgba(31,27,22,.18)}
+  .avatar svg{width:22px;height:22px;fill:currentColor;display:block}
+  .avatar.you{background:var(--blue)} .avatar.claude{background:#C75B38}
+  .lane-row.future .avatar{background:var(--paper);border:2px dashed var(--rule);color:var(--ink-soft);box-shadow:none}
+  .lane-row.future .avatar svg{width:20px;height:20px}
+  .lane-card{max-width:480px;width:100%;margin-bottom:20px;background:#fff;border:1px solid var(--rule);border-radius:14px;padding:16px 20px;box-shadow:0 1px 2px rgba(31,27,22,.05),0 10px 22px -16px rgba(31,27,22,.25)}
+  .lane-row.future .lane-card{background:rgba(255,253,247,.5);border-style:dashed;box-shadow:none}
+  .lane-card .ch{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+  .lane-card h4{margin:0;font-size:17px;font-weight:600;line-height:1.25;color:var(--ink)}
+  .lane-row.future .lane-card h4{color:#5C544A}
+  .lane-card p{margin:0;font-size:14px;line-height:1.55;color:#5A534B}
+  .lane-row.future .lane-card p{color:#857D72}
+  .phase-tag{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);border:1px solid var(--rule);border-radius:999px;padding:2px 8px;font-weight:600}
+  .here{font-size:10px;letter-spacing:.07em;text-transform:uppercase;background:var(--green);color:#fff;border-radius:999px;padding:3px 9px;font-weight:700}
+  .actor{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;border-radius:7px;padding:4px 9px}
+  .actor svg{width:11px;height:11px;fill:currentColor;display:block}
+  .actor.human{background:#E7ECF1;color:#3C5871} .actor.claude{background:#F6E1D7;color:#B4542F}
+  @media (max-width:640px){
+    .lane-row{display:flex;align-items:stretch;gap:14px}
+    .lane-row .spine{order:0;flex:none;width:44px}
+    .lane-row .l,.lane-row .r{order:1;flex:1;min-width:0;justify-content:flex-start}
+    .lane-row .l:not(:has(.lane-card)),.lane-row .r:not(:has(.lane-card)){display:none}
+    .lane-card{max-width:none;padding:13px 16px}
+    .lane-card h4{font-size:15px} .lane-card p{font-size:13.5px}
+  }
+
+  .panes{display:grid;grid-template-columns:1fr minmax(300px,40%);gap:24px;align-items:start}
+  .scriptcol{order:2;position:sticky;top:0;max-height:100vh;display:flex;flex-direction:column;background:var(--paper-2);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+  .scripthead{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border-bottom:1px solid var(--rule);flex:none}
+  .scripthead button{margin-left:auto;background:none;border:1px solid var(--rule);border-radius:7px;font:inherit;font-size:12px;padding:4px 10px;cursor:pointer;color:var(--ink-soft)}
+  .scriptwrap{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+  .script{overflow:auto;flex:1;min-height:0;border:none;background:transparent;padding:4px 6px;box-shadow:none}
+  .edgehint{position:absolute;left:50%;transform:translateX(-50%);z-index:6;display:none;align-items:center;gap:5px;
+    font:inherit;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--ink);cursor:pointer;
+    background:#fff;border:1px solid var(--rule);border-radius:999px;padding:5px 11px;box-shadow:0 2px 8px var(--shadow)}
+  .edgehint:hover{border-color:var(--green);color:var(--green)}
+  .edgehint .arrow{color:var(--green);font-weight:700}
+  .edgehint.show{display:inline-flex}
+  .edgehint.top{top:8px} .edgehint.bot{bottom:8px}
+  .turn{padding:8px 13px;border-radius:8px;cursor:pointer;scroll-margin:14px;transition:background .15s}
+  .turn + .turn{border-top:1px dotted var(--rule)}
+  .turn .meta-r{display:flex;gap:8px;align-items:baseline;margin-bottom:1px}
+  .turn .spk{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .turn .ts{font-size:10px;color:var(--ink-soft)}
+  .turn.P .spk{color:var(--blue)} .turn.F .spk{color:var(--ink-soft)}
+  .turn.B .spk{color:var(--plum)} .turn.O .spk{color:#9a948a}
+  .turn .txt{font-size:12.5px;line-height:1.45}
+  .turn:hover{background:#fff}
+  .turn.hl{background:var(--hl);box-shadow:inset 3px 0 0 var(--green)}
+  .turn.hl-primary{background:var(--hl);box-shadow:inset 3px 0 0 var(--mark)}
+  .turn.anchored .spk::after{content:"•";color:var(--green);margin-left:6px}
+  .unsure{background:#F4E6C4;border-bottom:1px dashed var(--amber);padding:0 2px;border-radius:2px;cursor:help}
+
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:56px;padding:8px 2px;background:var(--paper);border-bottom:1px solid var(--rule);margin-bottom:14px;position:sticky;top:0;z-index:5}
+  .toolbar .count{font-weight:600} .toolbar .count em{color:var(--green);font-style:normal}
+  .tb-break{flex-basis:100%;height:0;margin:0}
+  .spacer{flex:1}
+  button.act{background:var(--ink);color:var(--paper);border:none;border-radius:8px;padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+  button.ghost{background:none;color:var(--ink);border:1px solid var(--rule)} button.ghost:hover{border-color:var(--ink)}
+  select.filter{font:inherit;font-size:13px;border:1px solid var(--rule);border-radius:8px;padding:7px 10px;background:#fff;max-width:150px}
+
+  .card{border:1px solid var(--rule);border-radius:12px;background:#fff;padding:16px 16px 14px;margin-bottom:13px;display:grid;grid-template-columns:30px 1fr;gap:13px;box-shadow:0 1px 2px rgba(33,31,27,.05),0 10px 24px -16px rgba(33,31,27,.22);transition:border-color .15s,box-shadow .15s,transform .15s;cursor:pointer}
+  .card:hover{border-color:var(--ink-soft);transform:translateY(-1px);box-shadow:0 2px 5px rgba(33,31,27,.06),0 16px 32px -18px rgba(33,31,27,.30)}
+  .card.active{border-color:var(--mark);box-shadow:0 0 0 2px var(--mark),0 10px 24px -16px rgba(33,31,27,.22)}
+  .keep{appearance:none;width:23px;height:23px;border:1.5px solid var(--ink-soft);border-radius:6px;cursor:pointer;position:relative;margin-top:2px;background:#fff;flex:none}
+  .keep:checked{background:var(--green);border-color:var(--green)}
+  .keep:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+  .card h3{margin:0 0 6px;font-size:18px;font-weight:600;line-height:1.3;letter-spacing:-.01em}
+  .tagrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:7px}
+  .tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding:0;background:none;color:var(--ink-soft);display:inline-flex;align-items:center;gap:6px}
+  .tag::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+  .tag.pain_point{color:#9A352A}
+  .tag.feature_request{color:#33536F}
+  .tag.naming_copy{color:#7A6320}
+  .tag.design_decision,.tag.design_insight{color:#246253}
+  .tag.open_question{color:#856516}
+  .tag.context{color:#55514a}
+  .conf{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;display:inline-flex;align-items:center;gap:5px;color:var(--ink-soft)}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .conf .dot{display:none}
+  .src{margin-left:auto;font-size:11px;color:var(--ink-soft);font-weight:600;white-space:nowrap;transition:opacity .12s}
+  .card:hover .src,.card.editing .src{opacity:0}
+  .src .srcn{color:var(--ink-soft);font-weight:600}
+  .detail{margin:0 0 10px;font-size:14px;color:var(--ink-soft)}
+  .quote{border-left:3px solid var(--rule);padding:7px 0 7px 13px;margin:0 0 4px;font-style:italic;color:#3a372f;font-size:14px;line-height:1.5}
+  .topics{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .topic{font-size:10.5px;color:var(--ink-soft);border:1px solid var(--rule);border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .who{font-size:11px;color:var(--ink-soft);margin-top:7px;letter-spacing:.04em}
+  .tension{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--rule)}
+  .tension .tlabel{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--mark);white-space:nowrap}
+  .tension .tlink{font:inherit;font-size:12px;text-align:left;color:var(--ink);background:#fbecea;border:1px solid #e3b9b2;border-radius:7px;padding:3px 9px;cursor:pointer;line-height:1.3}
+  .tension .tlink:hover{border-color:var(--mark);color:var(--mark)}
+  .conflict-toggle[aria-pressed="true"]{background:var(--mark);color:#fff;border-color:var(--mark)}
+  .query{display:flex;gap:8px;align-items:flex-start;margin-top:11px;padding:9px 11px;background:#FBF1D9;border:1px dashed var(--amber);border-radius:8px;font-size:12.5px;color:#6f560f}
+  .query b{color:var(--amber)}
+
+  .repsec{margin-bottom:24px}
+  .repsec h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule);padding-bottom:6px;margin:0 0 10px}
+  .note{background:#E3EEE9;border:1px solid #Bcd7cd;border-left:3px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:13.5px}
+  .note b{color:var(--green)}
+  .rep{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px dotted var(--rule);font-size:14px}
+  .rep .b{flex:0 0 64px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;padding-top:2px}
+  .b.auto{color:var(--green)} .b.confirm{color:var(--amber)} .b.query{color:var(--mark)}
+  .orig{text-decoration:line-through;text-decoration-color:var(--mark);color:var(--ink-soft)}
+  .arrow{color:var(--mark);font-weight:700;padding:0 4px} .fix{color:var(--ink);font-weight:500}
+  .fix.drop{color:var(--ink-soft);font-style:italic;font-weight:400} .qtext{color:#6f560f}
+  .hint{font-size:13px;color:var(--ink-soft);margin:0 0 14px}
+
+  .export{display:none;border:1px solid var(--rule);border-radius:12px;background:#fff;padding:16px;margin:0 0 20px}
+  .export.show{display:block}
+  .export .row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+  .export textarea{width:100%;height:200px;border:1px solid var(--rule);border-radius:8px;padding:12px;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:12px;background:var(--paper);resize:vertical}
+  /* review round-trip */
+  .review{display:none;border:1px solid var(--mark);border-radius:12px;background:#fff;padding:16px;margin:0 0 20px}
+  .review.show{display:block}
+  .review .row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+  .review .lead{font-size:13px;color:var(--ink-soft);margin:0 0 10px}
+  .review textarea{width:100%;height:220px;border:1px solid var(--rule);border-radius:8px;padding:12px;font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:12px;background:var(--paper);resize:vertical}
+  .review-tally{font-size:12px;color:var(--ink-soft)}
+  .review-tally em{color:var(--mark);font-style:normal;font-weight:700}
+  button.send{background:var(--ink);color:var(--paper);border:none;border-radius:8px;padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+  button.send[disabled]{opacity:.45;cursor:default}
+  .seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+  .seg button{background:#fff;border:none;padding:7px 14px;font:inherit;font-size:13px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+  /* card tools + edit mode */
+  .card{position:relative}
+  .cardtools{position:absolute;top:8px;right:8px;display:flex;gap:4px;z-index:3;
+    background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:3px;
+    opacity:0;transition:opacity .12s;box-shadow:0 2px 8px var(--shadow)}
+  .card:hover .cardtools{opacity:1}
+  .cardtools button{font:inherit;font-size:11px;line-height:1;border:none;background:none;
+    color:var(--ink-soft);border-radius:5px;padding:5px 7px;cursor:pointer;white-space:nowrap}
+  .cardtools button:hover{background:var(--paper-2);color:var(--ink)}
+  .cardtools button.on{background:var(--mark);color:#fff}
+  .card.editing{box-shadow:0 0 0 2px var(--blue),0 1px 0 var(--shadow)}
+  .card.editing .cardtools{opacity:1}
+  .flags{display:flex;gap:6px;margin-top:9px}
+  .flag{font:inherit;font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;
+    border:none;border-radius:5px;padding:2px 7px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+  .flag .flag-x{font-size:11px;line-height:1;opacity:.5}
+  .flag:hover .flag-x{opacity:1}
+  .flag.edit{background:#E2EBF1;color:#33536F}
+  .flag.note{background:#EDE6D6;color:#7A6320}
+  .card.excluded{opacity:.5}
+  .card.excluded h3,.card.excluded .detail,.card.excluded .quote{text-decoration:line-through;
+    text-decoration-color:var(--mark)}
+  .cmt{margin-top:10px}
+  .cmt-rm{margin-top:6px;font:inherit;font-size:11px;color:var(--ink-soft);background:none;border:none;
+    cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:2px}
+  .cmt-rm:hover{color:var(--mark)}
+  .cmt-in{width:100%;min-height:54px;border:1px solid var(--amber);border-radius:8px;
+    padding:8px 10px;font:inherit;font-size:13px;background:#FBF7EC;resize:vertical;color:var(--ink)}
+  .cmt-in::placeholder{color:var(--ink-soft)}
+  .mast-cmt{margin:10px 0 0}
+  .mast-note-btn{background:none;border:1px solid var(--rule);border-radius:7px;
+    font:inherit;font-size:12px;padding:4px 10px;cursor:pointer;color:var(--ink-soft)}
+  .mast-note-btn:hover{border-color:var(--ink);color:var(--ink)}
+  .mast-note-btn.on{background:var(--mark);color:#fff;border-color:var(--mark)}
+  .rep{position:relative} .turn{position:relative}
+  .rowtool{position:absolute;top:4px;right:4px;opacity:0;transition:opacity .12s;
+    background:var(--paper);border:1px solid var(--rule);border-radius:6px;
+    font:inherit;font-size:10.5px;color:var(--ink-soft);padding:3px 7px;cursor:pointer;z-index:2}
+  .rep:hover .rowtool,.turn:hover .rowtool{opacity:1}
+  .rowtool.on{background:var(--mark);color:#fff;border-color:var(--mark);opacity:1}
+  .repsec h2{position:relative}
+  .sectool{margin-left:10px;font:inherit;font-size:11px;border:1px solid var(--rule);
+    border-radius:6px;color:var(--ink-soft);padding:2px 8px;cursor:pointer;text-transform:none;letter-spacing:0}
+  .sectool.on{background:var(--mark);color:#fff;border-color:var(--mark)}
+  .cmt.inline{margin:6px 0 2px}
+  .efield[contenteditable="true"]{outline:none;border-bottom:1px dashed var(--blue);
+    background:#F7FAFD;border-radius:3px;padding:0 2px}
+  .card.editing .quote.efield[contenteditable="true"]{background:#F7FAFD}
+  .esel{font:inherit;font-size:12px;border:1px solid var(--rule);border-radius:6px;padding:3px 6px;background:#fff}
+  .echip{display:inline-flex;align-items:center;gap:5px}
+  .echip button{border:none;background:none;color:var(--mark);cursor:pointer;font-size:12px;padding:0 2px}
+  .topic-add{font:inherit;font-size:10.5px;border:1px dashed var(--rule);border-radius:999px;
+    padding:2px 8px;width:120px}
+  footer{color:var(--ink-soft);font-size:12px;border-top:1px solid var(--rule);padding:18px 0 50px;margin-top:24px}
+  .hidden{display:none!important}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+  .toast.show{opacity:1}
+  @media (max-width:880px){
+    .panes{grid-template-columns:1fr}
+    .scriptcol{position:static;max-height:none;order:-1}
+    .script{max-height:300px}.toolbar{position:static}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">User testing · 2026-06-22 · full recording · transcript repaired</div>
+    <h1>Export / download version &amp; build</h1>
+    <div class="sub">37 min · 3 speakers (diarized) · RO-primary with EN terms</div>
+    <div class="legend">
+      <i><span class="sw" style="background:var(--blue)"></span>Adelina — participant</i>
+      <i><span class="sw" style="background:var(--ink-soft)"></span>Mădălina — facilitator</i>
+      <i><span class="sw" style="background:var(--plum)"></span>Antonia — PM</i>
+    </div>
+    <div class="mast-cmt">
+      <button class="mast-note-btn" data-act="report-note" onclick="toggleReportNote(this)">💬 Comment on the whole report</button>
+    </div>
+    <div class="mast-row">
+      <div class="meta">
+        <div><b id="m-ideas">0</b><span>ideas</span></div>
+        <div><b id="m-kept">0</b><span>kept</span></div>
+        <div><b id="m-rep">0</b><span>repairs</span></div>
+        <div><b id="m-query" style="color:var(--mark)">0</b><span>open queries</span></div>
+      </div>
+      <nav class="tabs">
+        <button class="tab" id="tab-ideas" aria-selected="true" onclick="showTab('ideas')">Ideas + transcript</button>
+        <button class="tab" id="tab-rep" aria-selected="false" onclick="showTab('rep')">Repair log</button>
+        <button class="tab" id="tab-how" aria-selected="false" onclick="showTab('how')">How this works</button>
+      </nav>
+    </div>
+  </header>
+
+  <section id="view-ideas">
+    <div class="panes">
+      <div class="scriptcol">
+        <div class="scripthead">Repaired transcript</div>
+        <div class="scriptwrap">
+          <button class="edgehint top" id="edge-up" onclick="jumpEdge(-1)" aria-label="Jump to highlighted lines above"><span class="arrow">▲</span> <span id="edge-up-n"></span> above</button>
+          <div class="script" id="script"></div>
+          <button class="edgehint bot" id="edge-dn" onclick="jumpEdge(1)" aria-label="Jump to highlighted lines below"><span class="arrow">▼</span> <span id="edge-dn-n"></span> below</button>
+        </div>
+      </div>
+      <div class="ideacol">
+        <div class="toolbar">
+          <select class="filter" id="catFilter" onchange="applyFilter()"></select>
+          <select class="filter" id="topicFilter" onchange="applyFilter()"></select>
+          <button class="ghost act" onclick="selectAll(true)">All</button>
+          <button class="ghost act" onclick="selectAll(false)">Clear</button>
+          <span class="spacer"></span>
+          <button class="ghost act conflict-toggle" id="conflictToggle" aria-pressed="false" onclick="toggleConflicts()" title="Show only insights that are in tension with another">⚡ Conflicts</button>
+          <span class="tb-break"></span>
+          <span class="review-tally" id="review-tally" data-tip=""></span>
+          <span class="spacer"></span>
+          <button class="send" data-act="send-review" id="sendReview" onclick="openReview()" disabled>Send to Claude ↑</button>
+        </div>
+        <div class="export" id="exportPanel">
+          <div class="row">
+            <div class="seg">
+              <button id="fmt-md" aria-pressed="true" onclick="setFmt('md')">Markdown</button>
+              <button id="fmt-json" aria-pressed="false" onclick="setFmt('json')">JSON</button>
+            </div>
+            <span class="spacer"></span>
+            <button class="ghost act" onclick="copyOut()">Copy</button>
+            <button class="act" onclick="downloadOut()">Download</button>
+            <button class="ghost act" onclick="closeExport()">Close</button>
+          </div>
+          <textarea id="outBox" readonly></textarea>
+        </div>
+        <div class="review" id="reviewPanel">
+          <p class="lead">Your edits, comments, and exclusions — paste this back into Claude to rebuild the report. Untouched items are omitted.</p>
+          <div class="row">
+            <div class="seg">
+              <button id="rfmt-json" aria-pressed="true" onclick="setReviewFmt('json')">JSON</button>
+              <button id="rfmt-md" aria-pressed="false" onclick="setReviewFmt('md')">Markdown</button>
+            </div>
+            <span class="spacer"></span>
+            <button class="ghost act" onclick="copyReview()">Copy</button>
+            <button class="act" onclick="downloadReview()">Download</button>
+            <button class="ghost act" onclick="closeReview()">Close</button>
+          </div>
+          <textarea id="reviewBox" readonly></textarea>
+        </div>
+        <div id="ideas"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-rep" class="hidden">
+    <div class="note"><b>Diarization &amp; clean-up notes.</b> The Gemini transcript came back clean, so Phase 1 was light.
+      Two speaker fixes: a facilitator question at <b>34:26</b> (mis-tagged to Adelina) was returned to Mădălina,
+      and the line at <b>11:14–11:20</b> was reassigned to Adelina by adjacency (Antonia answers “Da” right after) — flagged for you to confirm.
+      ASR’s <b>3 labels = 3 real speakers</b> (Adelina, Mădălina, Antonia) — no phantom voices. One out-of-order chunk timestamp was re-based.
+      Open items below: <b>“SDM”</b> (which module?) and the <b>match-uite</b> reconstruction.</div>
+    <p class="hint">Phase-1 repairs. <span style="color:var(--green)">Green</span> = applied ·
+      <span style="color:var(--amber)">amber</span> = confirm · <span style="color:var(--mark)">red</span> = needs you.</p>
+    <div id="repairs"></div>
+  </section>
+
+  <section id="view-how" class="hidden">
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <symbol id="ic-human" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12.6a4.3 4.3 0 1 0 0-8.6 4.3 4.3 0 0 0 0 8.6Zm7 7.4c0-3.3-3.4-5.4-7-5.4s-7 2.1-7 5.4V21h14v-1Z"/></symbol>
+      <symbol id="ic-claude" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M20.998 10.949H24v3.102h-3v3.028h-1.487V20H18v-2.921h-1.487V20H15v-2.921H9V20H7.488v-2.921H6V20H4.487v-2.921H3V14.05H0V10.95h3V5h17.998v5.949zM6 10.949h1.488V8.102H6v2.847zm10.51 0H18V8.102h-1.49v2.847z"/></symbol>
+    </svg>
+    <div class="how">
+      <div class="lane-row">
+        <div class="l">
+          <div class="lane-card">
+            <div class="ch"><span class="actor human"><svg><use href="#ic-human"/></svg> You</span><h4>Hand over the session</h4></div>
+            <p>Drop in the transcript, the recording, and a line on what was tested — all Claude needs to start.</p>
+          </div>
+        </div>
+        <div class="spine"><div class="seg bot"></div><div class="avatar you"><svg><use href="#ic-human"/></svg></div></div>
+        <div class="r"></div>
+      </div>
+
+      <div class="lane-row">
+        <div class="l"></div>
+        <div class="spine"><div class="seg top"></div><div class="seg bot"></div><div class="avatar claude"><svg><use href="#ic-claude"/></svg></div></div>
+        <div class="r">
+          <div class="lane-card">
+            <div class="ch"><span class="actor claude"><svg><use href="#ic-claude"/></svg> Claude</span><h4>Repairs the transcript</h4><span class="phase-tag">Phase 1</span></div>
+            <p>Fixes the ASR garble and restores the English domain terms — every fix logged in the Repair log.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane-row">
+        <div class="l"></div>
+        <div class="spine"><div class="seg top"></div><div class="avatar claude"><svg><use href="#ic-claude"/></svg></div></div>
+        <div class="r">
+          <div class="lane-card">
+            <div class="ch"><span class="actor claude"><svg><use href="#ic-claude"/></svg> Claude</span><h4>Extracts the insights</h4><span class="phase-tag">Phase 2</span><span class="here">you are here</span></div>
+            <p>Pulls insight cards — category, quote, confidence — each anchored to its exact transcript lines.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane-row">
+        <div class="l">
+          <div class="lane-card">
+            <div class="ch"><span class="actor human"><svg><use href="#ic-human"/></svg> You</span><h4>Review, edit &amp; classify</h4></div>
+            <p>Keep or drop cards, tweak the wording, answer the open queries, and sort them by destination database.</p>
+          </div>
+        </div>
+        <div class="spine"><div class="seg bot"></div><div class="avatar you"><svg><use href="#ic-human"/></svg></div></div>
+        <div class="r"></div>
+      </div>
+
+      <div class="lane-row">
+        <div class="l"></div>
+        <div class="spine"><div class="seg top"></div><div class="seg bot"></div><div class="avatar claude"><svg><use href="#ic-claude"/></svg></div></div>
+        <div class="r">
+          <div class="lane-card">
+            <div class="ch"><span class="actor claude"><svg><use href="#ic-claude"/></svg> Claude</span><h4>Folds in your changes</h4></div>
+            <p>Reads your edits, comments, and exclusions, then rebuilds the report with them folded in.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="next-rule"><div class="line"></div><span class="lbl">Next · planned, not yet built</span><div class="line"></div></div>
+
+      <div class="lane-row future">
+        <div class="l"></div>
+        <div class="spine"><div class="seg top"></div><div class="avatar claude"><svg><use href="#ic-claude"/></svg></div></div>
+        <div class="r">
+          <div class="lane-card">
+            <div class="ch"><span class="actor claude"><svg><use href="#ic-claude"/></svg> Claude</span><h4>Publishes to Notion</h4></div>
+            <p>Pushes the final insights to Notion via the Notion MCP — each into the right database.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Generated by the <b>meetinginsights</b> skill · Phase 1 repair → Phase 2 extract. Quotes are the repaired Romanian.</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// [speaker, timestamp, text]
+const TURNS = [["F", "00:00:00", "Am vrut să ne vedem să testăm un mic prototip pe zona de export versiune sau build. L-am lăsat în chat."], ["P", "00:00:12", "Acum intru. Dau și share screen, o secundă. Așa."], ["F", "00:00:31", "Cum e pentru tine experiența actuală de a exporta o versiune sau un build și de a-l muta pe un alt mediu? În ce situație îl folosești tu? Sunt momente care-ți generează frustrare, sau e ceva ce te-ar ajuta să existe și nu există?"], ["P", "00:00:56", "Nu... să știi că, cel puțin la cât l-am folosit eu și pentru ce, nu mi-a ridicat probleme. De exemplu, pe ProCredit l-am folosit cel mai mult, că acolo aveam mai multe environment-uri și trebuia să ducem dintr-o parte în alta. Mergeam pe mediul lor de UAT cu versiuni și build-uri, dar la un moment dat am început să aducem versiuni ca să putem continua acolo cu dezvoltarea, că trebuia să ne mutăm cu totul. Eu personal nu am avut incidente. Din ce știu de la Sorin, când a dus el prima versiune — sau primul build — pe UAT, a avut niște probleme cu partea aia de... cum se numesc, Doamne? Icon-uri și toate—"], ["F", "00:01:55", "Media files, cu media."], ["P", "00:01:57", "Exact, exact. Dar nu mai știu exact care era contextul acolo. Cumva, în arhivă nu era—"], ["F", "00:02:11", "Nu erau incluse media files?"], ["P", "00:02:14", "Erau incluse, dar aveau un alt format. De exemplu, dacă dădeai export la Global Media Files era ok, dar dacă le aveai într-o versiune, sau erau incluse în versiunea proiectului, apăreau într-un alt format pe care nu puteau să-l citească. În fine, nu mai știu cum a dres-o el, că nu am fost implicată. Dar ăsta e singurul impediment pe care l-am auzit la o chestie de export, pe ce am lucrat eu în ultima perioadă."], ["F", "00:02:50", "Exporturile pe care le faci durează mult?"], ["P", "00:02:54", "Durează câteva secunde. M-am obișnuit cu ideea că nu sunt instante. Nu mi se pare că durează foarte mult, dar trebuie să aștepți un pic. Singura chestie pe care am mai pățit-o: dau export, apăs pe butonul de export, și după aia, pentru că durează un pic, mă uit în altă parte sau fac altceva și nu-mi dau seama că de fapt s-a terminat exportul și trebuie să apăs pe download. Și tot aștept. Mi se pare foarte puțin vizibil că exportul e pregătit să fie downloadat. Nu știu cum să mă exprim."], ["F", "00:03:46", "Da, am înțeles. Bine, hai să ne uităm pe... Mai vrei să mai întrebi ceva aici, Antonia?"], ["B", "00:03:53", "Doar să-i spun Adelinei dacă poți să mai dai din nou share screen, că văd că a dispărut."], ["P", "00:03:59", "A, ok. Stai că nu făcusem nimic. Mai dau, sigur. Se vede, nu?"], ["F", "00:04:14", "E un prototip și nu e pe codebase, deci o să meargă doar câteva lucruri. Merge switch-ul dintre config și runtime, nu merg meniurile în sine, adică n-o să poți intra în reusable. Merge switch-ul de workspace din header, cred că la click pe logo. Și zona de deschis versiune, consola de project version."], ["P", "00:04:44", "Ok."], ["F", "00:04:47", "Scopul e să testăm zona asta de export version și download, luând în calcul un timp de așteptare de whatever și navigarea în alte locuri, și să vedem cum se simte. O să mai intru în detalii, dar nu vreau să zic acum prea multe, ca să nu-ți fac priming la ce să te uiți. Să zicem că vrei să exporți build-ul, versiunea aceasta, main committed — care acolo apare și ca build."], ["P", "00:05:20", "Ok, deci asta vreau s-o export."], ["F", "00:05:22", "S-o downloadezi, da, și s-o duci pe o versiune mai mică. Anterioară, pardon."], ["F", "00:05:37", "Ce se înțelege de aici? Ce crezi că o să se întâmple?"], ["P", "00:05:43", "Păi, teoretic o să se exporte versiunea 1.6.2, compatibilă cu 5.5.x, dar cu warning-ul că unele lucruri s-ar putea să nu fie incluse. Mă gândesc la feature-uri care nu existau în 5.5.x. Ok, și-i dau export, merg înainte cu tot cu warning-ul ăsta. Din 1.6.2. Ok, îmi și spune ce nu e inclus. Și acuma, să zicem că consider că nu e ok să mut fără funcția asta — dacă dau change target, mă întorc înapoi și nu s-a întâmplat nimic, doar schimb versiunea, nu?"], ["F", "00:07:09", "Deci tu acum nu vrei să ți-l exporte fără funcția aceea."], ["P", "00:07:20", "Zic, în cazul în care îmi dau seama că una dintre resursele care nu sunt incluse e destul de importantă, pot să merg înapoi fără să fi făcut... Ce vreau eu să înțeleg e momentul în care se creează acest export. Se creează după ce sunt eu de acord să fie downloadat? Că știu că era o chestie de buton — apăsai prima dată pe export și după aia era pregătit fișierul pentru download. În pasul ăsta pare că fișierul e pregătit, că s-a făcut o operație în spate, dar eu pot să merg înapoi și operația a fost făcută degeaba. Ceva de genul ăsta am în minte."], ["F", "00:08:15", "Bine, degeaba, dar ține de unde vrei să-l imporți. Dacă trebuie să imporți ceva într-o versiune anterioară, poți să faci fișierul, să-i schimbi target version-ul, dar el n-o să meargă importat în locul nou. Tot o să fie—"], ["B", "00:08:37", "El o să meargă importat, dar... dacă vrei să imporți o versiune exportată pentru 5.9 în 5.1, sunt șanse foarte mari ca importul în versiunea de platformă 5.1 să nu meargă. Dacă exporți o versiune de proiect specifică pentru 5.1, dar care exclude aceste funcționalități, aceste resurse, datorită incompatibilității cu versiunea 5.1, tu vei putea importa versiunea respectivă cu warning-ul că acele resurse nu există în versiunea aceea. Therefore, vor fi șanse foarte mari ca run-urile resurselor de acolo să nu funcționeze end to end. Cam asta."], ["P", "00:09:40", "Ok, am înțeles asta, dar eu încerc să asociez un pic ce se întâmplă în spate până în punctul ăsta."], ["F", "00:09:48", "E cum ai zis la început. Rămâne la fel: zip-ul se creează direct, fără aceste resurse, pentru că ai ales o versiune target în care ele nu pot fi <span class='unsure' title='Phase-1 confirm: «meciuite» → match-uite (matched)'>match-uite</span>, și atunci sistemul îți pregătește exportul direct fără acele resurse."], ["P", "00:10:08", "Ok. Mă gândeam că poate ar fi mai ok să afișezi înainte să se creeze — adică să nu faci operația de creare zip înainte să-i afișezi ce-i lipsește, că poate vrea să schimbe versiunea și să nu aștepți timpul ăla de creare zip, și după aia să te răzgândești și să mai aștepți încă o dată."], ["B", "00:10:33", "Am înțeles. Într-adevăr, în varianta ideală ar fi înainte, dar, datorită unor challenge-uri tehnice care ar fi explodat efortul, ne uităm la acest moment în care să afișezi ce a fost exclus — ca un insight — momentul în care, în mecanismul de export, se decide dacă resursele sunt compatibile sau pot fi transformate într-un format specific unei versiuni anterioare de platformă."], ["P", "00:11:14", "Ok, și de aceea... <span class='unsure' title='Phase-1 confirm: linie reatribuită Adelinei prin adiacență (Antonia răspunde „Da” imediat după)'>deci doar după poți să afișezi lista asta?</span>"], ["B", "00:11:20", "Da, cu un efort de dezvoltare. E o decizie de prioritizare a efortului, și încercăm să ne dăm seama dacă e valoros formatul acesta pentru utilizatori."], ["F", "00:11:39", "Noi încercăm să vedem dacă exporturile durează într-adevăr foarte mult. Ce am reușit să aflu a fost de la Goj, pentru NTT: cel mai mare fișier a durat cam un minut 20 — un minut jumate — de 2,4 mega. Crede că și la Kiwi, dar nu mai știe timpii exacți. Restul păreau să dureze destul de puțin, deci poate nu e o problemă foarte mare. Poți să închizi acum și s-o mai deschizi o dată? Cred că ai ales 5.1, nu? Mai devreme."], ["P", "00:12:27", "5.5."], ["F", "00:12:29", "Mai apasă o dată pe el. Ce facem e că, dacă ai exportat o versiune, o ținem minte."], ["P", "00:12:38", "A, ok."], ["F", "00:12:39", "Data viitoare n-o să mai dureze, și dacă conține resurse care sunt șterse, la download le mai afișăm o dată."], ["P", "00:12:51", "Am înțeles. Deci acuma, din cauză că am trecut o dată prin partea de export pe 5.5, n-o să mai văd lista aia — nu mai am modalul de export, am direct download, și o să văd lista când dau pe download, nu?"], ["F", "00:13:06", "Mhm, da."], ["P", "00:13:08", "A, ok. Asta e, că a ținut minte că am făcut deja."], ["F", "00:13:13", "Da, exportul e deja pregătit, n-o să mai aștepți. Asta merge pe build-uri — că pe versiuni WIP nu e musai valoros, fiindcă se poate altera versiunea WIP până decizi s-o exporți. Nu, că e committed — poți să exporți doar o versiune committed. Deci merge pe ambele, scuze, m-am încurcat eu."], ["P", "00:13:35", "Ok. Și acum o să-i dau download, că vreau s-o downloadez. Și am exportul. Și aici e de la prototype că-mi apare din nou export?"], ["F", "00:13:54", "Erai obișnuită să-ți afișeze download acolo."], ["P", "00:13:59", "Mă gândeam că dacă înainte, în modală... Stai un pic. A, dar trebuia să selectez versiunea, exact. Mă gândeam că dacă aici aveam get download — dar eram obișnuită doar pe o singură versiune. Are sens atunci să nu se modifice asta, să rămână export."], ["F", "00:14:23", "Era de fapt — merge să fie download, că facem noi download-ul în doi pași: întâi export și pe urmă download. Dar tu dai export ca să downloadezi, și atunci are sens să fie acțiunea către care tinzi, pe care o ai la un click dacă ai mai exportat versiunea anterior. Dar goal-ul de acțiune, call to action-ul, e download version."], ["P", "00:14:47", "Da, da. Ok. Drăguț."], ["F", "00:14:55", "Acum, ca să ajung să te întreb ceva legat de notificări: dacă poți să exporți o versiune — whatever versiune, cu sau fără media file — și să închizi modala aceea în care aștepți. Să zicem că durează foarte mult și oricum ai face altceva. Închide-o, sau navighează pe ceva."], ["P", "00:15:21", "A, close. Ok. A, și primesc notificarea."], ["F", "00:15:29", "Să zicem că n-apuci să apeși pe ea. A dispărut, că are un timp în care stă."], ["P", "00:15:39", "Mi-a sărit destul de repede în ochi partea asta. Ok, și dau download direct din notificare. Asta mi se pare super, super tare."], ["F", "00:15:56", "Ok. Se întâmplă să—"], ["P", "00:16:00", "Scuze, istoricul ăsta se păstrează pe toate exporturile din proiect, sau cum funcționează partea asta de notifications?"], ["F", "00:16:14", "Cum te-ai aștepta să fie, sau cum ți s-ar părea util să fie?"], ["P", "00:16:19", "Mi s-ar părea fain să fie ca un fel de istoric de exporturi la nivel de proiect. Adică îl văd la nivel de proiect, că e în header. Sau e pe workspace? Nu-mi dau seama exact. Nu văd doar notificări de tip export, și de aia mă duce cu gândul doar la zona asta."], ["F", "00:17:01", "Poți să mergi și pe un alt workspace să exporți, dacă vrei."], ["P", "00:17:04", "A, stai că ai toate workspace-urile, acuma văd. Poți să mergi pe unul anume. Deci e la nivel de workspace."], ["F", "00:17:17", "E la nivel de organizație, aș zice mai degrabă."], ["P", "00:17:22", "Sau mai degrabă la nivel de user?"], ["F", "00:17:24", "Sau la nivel de user, da. Asta încercăm — nu am dus până la capăt mecanismul acesta de notificări. Deocamdată vrem să înțelegem niște nevoi din real life."], ["P", "00:17:52", "Că ziceai la nivel de user — asta înseamnă că pot fi configurați useri care să vadă toate exporturile de la toți userii, sau doar fiecare își vede exporturile?"], ["F", "00:18:07", "N-aș vrea să-ți dau eu un răspuns acum, aș vrea să te întreb pe tine: cum ai crede că ar trebui să fie, sau cum te-ar ajuta pe tine?"], ["P", "00:18:19", "Eu una îți zic că mi-ar plăcea să văd exporturile de la colegi. De exemplu, pe ProCredit am avut o perioadă în care toată lumea era și pe altceva: uitam să facem deploy-urile în UAT, pentru că aveam impresia că celălalt a făcut și nu știam, și nu intram. Pe UAT era destul de dificil să intrăm la ei pe VM, și de la noi din environment nu-ți dădeai seama dacă s-a exportat versiunea respectivă și s-a dus."], ["F", "00:18:56", "Mhm. Dacă s-a importat, de fapt — asta n-am—"], ["P", "00:18:59", "Dacă s-a exportat de la noi și s-a importat în partea cealaltă, vedeai dacă verificai, dar era dificil de intrat pe VM-ul lor, îți lua o grămadă de timp. O chestie din asta, în care să-ți zică dacă cineva a făcut un export și l-a dus, ar fi ajutat."], ["F", "00:19:24", "Exportul nu inferează și că s-a făcut importul, dar înțeleg unde mergi — măcar să știi că cineva a exportat versiunea ar fi util. Mă întreb, pe de altă parte, dacă n-ar fi confusing să se vadă toate notificările acțiunilor pe care tu însuți nu le-ai făcut — dacă n-ar polua prea mult notificările. Plus că asta nu presupune să fie o zonă doar pentru notificări de export."], ["F", "00:20:02", "Aici mai voiam să ajung: ai simțit de-a lungul timpului nevoia de diverse notificări care să rămână persistente, sau care să aibă un timestamp de care să te ajuți? Sau pe care să le găsești odată ce au apărut și au fost închise?"], ["P", "00:20:27", "Mmm. Nu cred că am simțit vreodată nevoia de ceva încât să zic că dacă n-am asta, e super nasol. Dar stai să mă gândesc. Mă gândeam la contextul ăsta cu Rasirom, în care lucrăm foarte mulți pe diverse branch-uri. Dar acolo dificultățile constau în alte lucruri, nu neapărat în zona asta de notificări."], ["F", "00:21:16", "Cu ce anume, legat de branch-uri?"], ["P", "00:21:19", "Păi, lucrăm patru-cinci oameni în paralel pe funcționalități diferite, dar care au anumite lucruri în comun. Dacă unul dintre noi face o componentă custom prima dată, ar trebui ceilalți să aștepte să facă el un merge, după aia să facem și noi un merge, să ne luăm componenta aia, s-o preluăm pe branch-urile noastre și s-o folosim mai departe. E destul de dificil de aliniat, și mai ales trebuie să ne anunțăm constant că eu fac asta, care poate să fie reutilizabil, și trebuie să avem grijă ce poate fi reutilizabil din toate funcționalitățile. Ăla e mai mult pain-ul acolo."], ["F", "00:22:12", "Acolo să înțeleg că v-ar ajuta o funcționalitate de rebase, în care—"], ["P", "00:22:20", "Da, acolo cred că da. Cred că Cristi zicea de chestia asta."], ["F", "00:22:29", "Înțeleg de la... știu că inițial — nu știu dacă erai la momentul respectiv — s-au făcut niște, mă rog, folosind termenul lui Puiu Ionescu, „manțocării”, în care se exportau versiunile componentelor custom de pe branch-ul pe care erau disponibile și se importau pe branch-ul în care aveai nevoie, dar după aceea apăreau conflicte la numele resurselor și trebuiau rezolvate. Înțeleg de la Adriana că acum mergeți pe workflow-uri în care se face merge în master des, astfel încât să preiei resursele reutilizabile și pe alte branch-uri. Sunt curioasă cât de mult s-a îmbunătățit modul de lucru, sau dacă în continuare e extrem de greu."], ["P", "00:23:38", "Păi, ideea e că approach-ul ăsta de a face merge în main des nu mi se pare neapărat corect, pentru că, de exemplu, dacă ai vrea să duci în UAT — momentan noi nu ducem — tot timpul ai în main garbage, jumătăți de implementări sau sferturi din alte chestii. Și asta nu mi se pare o abordare sănătoasă long term. Momentan ne ajută, pentru că nu ducem mai departe pe alt environment. Dar în momentul în care va trebui să ne aliniem cu un UAT, sau mai departe cu un production, am fi constrânși. Mie mi s-ar părea normal să duci în main doar ceva ce poate, dacă e nevoie, să fie dus în UAT."], ["F", "00:24:36", "Da, are sens."], ["P", "00:24:43", "Și dacă ziceai că ai vorbit cu Adriana — poate e o chestie care ar putea fi prinsă în notificări. Cum lucrăm mai mulți pe același proiect pe funcționalități diferite — Adriana e owner pe partea de teaming, să alinieze toate update-urile de pe teaming — dar mai sunt momente în care, de exemplu, săptămâna trecută ne-a dat Musti niște culori noi, și când a intrat să valideze ceva în temă, părea că cineva a modificat, dar nu știam cine. Nu există un istoric acolo cu ce se întâmplă. Și poate ar fi utilă o notificare către noi că s-a actualizat ceva în temă, pentru că aia impactează tot proiectul."], ["F", "00:25:42", "Mhm. Înțeleg. Tema, fiind în afara proiectului, poate fi modificată de oricine. Și nu știi — e doar legată la proiect loosely, fără o modalitate de versionare a temei."], ["P", "00:26:07", "Nu există versionare. Nu ai niciun istoric, nimic. Nu poți să vezi nimic din ce s-a întâmplat acolo."], ["F", "00:26:13", "Nu ai nici audit log?"], ["P", "00:26:15", "În audit log nu se vede. Parcă am intrat o dată — stai să văd."], ["F", "00:26:20", "Într-adevăr, nu cred că o să știi ce s-a modificat, dar... poate în audit log."], ["P", "00:26:31", "Da, am intrat și aici, și nu. Dacă aș intra să modific ceva... aici pot să caut după... sau un section. Nu pot să caut."], ["F", "00:26:51", "După subject — nici acum."], ["P", "00:26:54", "Nu știu cum aș putea să caut după teaming, dar știu că am verificat atunci cu ea și nu—"], ["F", "00:27:01", "Da, îmi pare că nu avem audit log pe <span class='unsure' title='Phase-1 query: ce înseamnă „SDM” aici — ce modul/zonă FlowX?'>SDM</span>, într-adevăr."], ["P", "00:27:05", "Da. Și aici nu vezi nimic."], ["F", "00:27:17", "Mhm. Ok. Bun. Alte lucruri pe care le-ați mai simțit ca fricțiuni în lucrul colaborativ?"], ["P", "00:27:44", "Cred că au fost probleme de merge, dar de care s-a ocupat Cristi — el poate să zică mai multe. Știu că au fost destul de multe problemuțe pe merge, tot de la componente comune și conflicte de genul ăsta. Nu pot să intru în detalii, că nu am gestionat eu problemele, dar am fost blocată de vreo trei ori — jumate de zi, o zi — pe probleme de merge, pe branch-ul meu cel puțin."], ["F", "00:28:22", "Mhm. Și ce ai făcut?"], ["P", "00:28:30", "M-am ocupat de alte treburi."], ["F", "00:28:32", "Adică a fost blocat complet?"], ["P", "00:28:35", "Da, nu puteam să fac merge, și trebuia neapărat să fac merge ca să-mi iau alte lucruri din main, ca să pot continua dezvoltarea."], ["F", "00:28:54", "Hai s-o luăm așa: lucrai la un feature pe care nu l-ai finalizat, trebuia să-l duci în main ca să poți—"], ["P", "00:29:07", "Exact."], ["F", "00:29:08", "să-ți refaci un branch și să continui implementarea pe același feature."], ["P", "00:29:13", "Da, exact. E fix behavior-ul pe care ziceam că-l abordăm — facem merge mai des în main și de acolo luăm."], ["F", "00:29:23", "Am înțeles. Bun."], ["B", "00:29:36", "Păi, mulțumim. Ce am reținut de aici e că ar fi poate bine, în unele cazuri, să avem notificări la nivel de organizație către toți userii. Și disponibilitatea asta a exportului, a download-ului — tot ce export e făcut — și că poate ar fi bine să fii notificat înainte de export ce o să fie exclus."], ["P", "00:30:11", "Da, dar având în vedere comportamentul ăla că nu se mai face exportul din nou pe o versiune pe care deja ai selectat-o, mi se pare că... deși, într-adevăr, dacă vrei să te întorci să selectezi alta, trebuie să aștepți din nou timpul de export, dar nu e atât de nasol."], ["B", "00:30:35", "Export build faci și din zona aceea de runtime?"], ["P", "00:30:38", "Da, de aici."], ["B", "00:30:46", "Când alegi să faci un export de build de aici, și când din zona de config? Tot build?"], ["F", "00:30:53", "Build din zona de config—"], ["B", "00:30:55", "Exportă o versiune de proiect."], ["F", "00:30:57", "Exportă o versiune, corect. Da."], ["P", "00:30:59", "Da, în config vezi doar build-urile pe versiunea respectivă. Dacă ai un build, butonul de export e aferent versiunii."], ["F", "00:31:12", "E al versiunii, da."], ["P", "00:31:13", "Da. Și aici e zona de builds, de unde se exportă. Și oricum, chiar dacă ar fi fost din config — m-am obișnuit cu zona asta — mi se pare mult mai clean, pentru că aici sunt și în ordine, le vezi mult mai clar, le gestionezi mult mai ușor decât să te duci printre versiuni. De exemplu, dacă ai mai multe build-uri și nu știi exact care e care, le vezi unul după altul. La o versiune e mai complicat — noi n-avem build-uri momentan — te pierzi un pic care e care. Aici mi se pare mult mai clean, că știi că te ocupi doar de build-uri și atât."], ["F", "00:32:10", "Mhm. Dacă tot te-ai uitat acolo, mai am o ultimă întrebare: ți se pare greu de lucrat cu arborele acela de versiuni? Îți e dificil să interacționezi, să-ți găsești branch-ul pe care lucrezi?"], ["P", "00:32:30", "Sincer, eu tot timpul știu cum se numește branch-ul meu și după asta îl identific, după nume, pentru că aici e destul de dificil să-ți dai seama ce se întâmplă. Mă uit după tag-ul ăsta de nume și îl identific foarte simplu. Nu mi se pare dificil."], ["F", "00:32:56", "Mhm."], ["P", "00:32:56", "Cred că e mai dificil să-ți ții un tracking de... unde, pe unde s-a dus, dacă vrei să-l urmărești."], ["F", "00:33:08", "Mhm. Ce branch-uri au fost merge-uite, cum—"], ["P", "00:33:10", "Da, dar de asta nu avem nevoie atât de des. Dacă aș vrea să știu de când am făcut eu branch-ul ăsta din main, ar trebui să mă duc pe liniuța asta, să văd de unde vine din main. Dar ăsta — numele — ajută foarte mult."], ["F", "00:33:49", "Mhm. Comentariul îl urmărești vreodată?"], ["P", "00:33:55", "Te referi la asta de aici?"], ["F", "00:33:56", "Da, da."], ["P", "00:33:57", "Da, îl urmăresc. Stai să mă uit la versiunile anterioare. Apar toate de la Cristi, că el le-a făcut. Am un comentariu când a fost făcut review pe partea de UI/UX. De obicei îmi pun niște mesaje sugestive ca să-mi dau seama ce a fost highlight-ul."], ["F", "00:34:22", "Da, exact. Care e highlight-ul versiunii respective. Urmărești mesajul ăsta și în header? Ai văzut că apare și în header, lângă versiune, sus de tot, în header-ul aplicației."], ["P", "00:34:35", "A, nu."], ["F", "00:34:37", "Nu?"], ["P", "00:34:38", "Nu."], ["F", "00:34:39", "Te uiți mai mult, dacă înțeleg bine, pe istoric, să vezi care au fost milestone-urile?"], ["P", "00:34:45", "Da, dar nu mă uit aici. Cel mai des ești pe WIP-ul tău. Dacă vrei să te uiți pe versiuni, mă uit — nu neapărat să intru pe ele, nu neapărat să dau click. Le citesc doar. Dacă am nevoie să verific ceva, intru direct în ele, dar nu mai verific încă o dată mesajul de aici."], ["F", "00:35:23", "Dacă-mi faci configurare, nu e vreodată cazul să-ți arunci un ochi în comentariu și să te reancorezi unde ești? Ai alte criterii, sau știi deja că ești în config?"], ["P", "00:35:36", "Păi, când fac configurare, fac pe draft, care nu are mesaj."], ["F", "00:35:40", "Care nu are mesaj, da. Și pe urmă, când îi dai start new version, nu te iei după... înțeleg. Ok. Bun."], ["P", "00:36:00", "Bine."], ["F", "00:36:01", "Cred că eu nu mai am întrebări, oricum am depășit. Mulțumesc pentru disponibilitate."], ["P", "00:36:06", "Cu drag. Ne mai auzim, ne mai prindem dacă e ceva."], ["F", "00:36:12", "Zi faină să aveți. Mulțumim mult."], ["B", "00:36:16", "Pa, pa."]];
+
+const IDEAS = [{"id": "idea-01", "title": "Export-ready state is barely visible — users miss that the download is ready", "category": "pain_point", "topics": ["Export / download flow"], "detail": "Because the export takes a few seconds, Adelina looks away after clicking, then doesn't realize it finished and that she now has to hit download — so she keeps waiting. The \"ready to download\" signal isn't visible enough.", "quote": "mi se pare foarte puțin vizibil că exportul e pregătit să fie downloadat.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [9, 8]}, {"id": "idea-02", "title": "Mental model: the zip seems created before she confirms — backing out wastes that work", "category": "pain_point", "topics": ["Export / download flow", "Compatibility warnings"], "detail": "Adelina is unsure when the export file is actually created. It feels like a back-end operation already ran before she agrees, so if she hits change-target and goes back, that work was done for nothing. (The facilitators clarified the zip is built directly without the excluded resources.)", "quote": "eu pot să merg înapoi și operația a fost făcută degeaba.", "speaker": "P", "confidence": "medium", "needs": false, "anchors": [21, 19, 20, 22, 25]}, {"id": "idea-03", "title": "Show excluded resources BEFORE creating the zip", "category": "feature_request", "topics": ["Export / download flow", "Compatibility warnings"], "detail": "Adelina would prefer to see what's missing before the zip-creation step, so she can switch version without waiting through zip creation twice if she changes her mind. (She later softened this, noting the caching behavior means re-export isn't that painful.)", "quote": "poate ar fi mai ok să afișezi înainte să se creeze… să nu aștepți timpul ăla de creare zip.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [26, 28], "conflictsWith": ["idea-04"]}, {"id": "idea-04", "title": "Showing exclusions before zip-creation was de-scoped for technical effort", "category": "design_decision", "topics": ["Export / download flow", "Compatibility warnings"], "detail": "Antonia (PM) explains the ideal would be to surface exclusions before creating the file, but technical challenges would blow up the effort, so it's shown at the point where the export mechanism decides resource compatibility. A prioritization call, pending user-value validation.", "quote": "în varianta ideală ar fi înainte, dar… challenge-uri tehnice care ar fi explodat efortul.", "speaker": "B", "confidence": "high", "needs": false, "anchors": [27, 29], "conflictsWith": ["idea-03"]}, {"id": "idea-05", "title": "Caching exports + download-straight-from-notification delights her", "category": "design_insight", "topics": ["Export / download flow", "Notifications & export history"], "detail": "Once a version is exported it's remembered, so re-exporting is instant; and being able to download directly from the notification landed as a clear win for Adelina.", "quote": "dau download direct din notificare. Asta mi se pare super, super tare.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [47, 32, 34, 38]}, {"id": "idea-06", "title": "Wants an export history showing colleagues' exports, not just her own", "category": "feature_request", "topics": ["Notifications & export history", "Cross-environment migration", "Team collaboration & branching"], "detail": "Adelina would value an export history at project (or org/user) level that surfaces teammates' exports. On ProCredit they'd forget UAT deploys, assuming someone else had done it, and couldn't tell from their own environment whether a version had been exported/moved. Facilitator's open concern: showing everyone's actions could pollute notifications.", "quote": "mi-ar plăcea să văd exporturile de la colegi.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [59, 49, 51, 57, 61]}, {"id": "idea-07", "title": "Theme has no versioning or audit trail — silent changes break the whole project", "category": "pain_point", "topics": ["Theme & versioning", "Notifications & export history", "Team collaboration & branching"], "detail": "The theme lives outside the project, anyone can change it, and there's no history or audit log of who changed what — yet a theme change impacts the entire project (e.g. Musti's new colors appeared changed but nobody knew by whom). Adelina wants a notification when the theme is updated.", "quote": "Nu există versionare. Nu ai niciun istoric, nimic… aia impactează tot proiectul.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [72, 74, 76, 78]}, {"id": "idea-08", "title": "\"Merge to main often\" workflow is unhealthy long-term — main fills with garbage", "category": "design_insight", "topics": ["Team collaboration & branching"], "detail": "Adelina pushes back on the frequent-merge-to-main approach: it works now only because they don't promote to UAT, but main constantly holds half-finished implementations. The moment they must align with a UAT/production it becomes a constraint.", "quote": "tot timpul ai în main garbage, jumătăți de implementări… nu mi se pare o abordare sănătoasă long term.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [70]}, {"id": "idea-09", "title": "Merge conflicts on shared components block developers for up to a day", "category": "pain_point", "topics": ["Team collaboration & branching"], "detail": "Adelina was blocked roughly half a day to a full day on merge problems on her branch — she had to merge to main to pull others' work before she could continue. Conflicts stem from shared/common components.", "quote": "am fost blocată de vreo trei ori — jumate de zi, o zi — pe probleme de merge.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [84, 88, 92]}, {"id": "idea-10", "title": "Constant manual coordination of reusable components is the real pain (rebase would help)", "category": "feature_request", "topics": ["Team collaboration & branching"], "detail": "With 4–5 people on parallel features that share pieces, they must constantly announce what's reusable and wait on each other's merges to pull a shared custom component. Adelina agrees a rebase capability would help.", "quote": "trebuie să ne anunțăm constant că eu fac asta, care poate fi reutilizabil… Ăla e mai mult pain-ul acolo.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [66, 68]}, {"id": "idea-11", "title": "Dedicated builds list feels cleaner than browsing versions in config", "category": "design_insight", "topics": ["Version & build management"], "detail": "Even though export also works from config, Adelina finds the dedicated builds area cleaner — items are ordered, clearer to read, and easier to manage than hunting among versions.", "quote": "mi se pare mult mai clean… le vezi mult mai clar, le gestionezi mult mai ușor.", "speaker": "P", "confidence": "medium", "needs": false, "anchors": [104]}, {"id": "idea-12", "title": "Keep the action labelled \"Export\" — it's a two-step export→download", "category": "naming_copy", "topics": ["Export / download flow", "Naming & labels"], "detail": "Adelina first expected the button to read \"download\" (she was used to single-version flows), but agreed it makes sense to keep \"export\" since it's a two-step process; the facilitator notes the call-to-action goal is still \"download version\".", "quote": "are sens atunci să nu se modifice asta, să rămână export.", "speaker": "P", "confidence": "medium", "needs": false, "anchors": [41, 42]}, {"id": "idea-13", "title": "She navigates the version tree by branch NAME, not the tree structure", "category": "design_insight", "topics": ["Version & build management"], "detail": "Adelina finds the version tree hard to read, so she always locates her branch by its name tag. The tree is weak for lineage tracking (where a branch came from), but she rarely needs that.", "quote": "mă uit după tag-ul ăsta de nume și îl identific foarte simplu.", "speaker": "P", "confidence": "high", "needs": false, "anchors": [106, 108, 110]}, {"id": "idea-14", "title": "Version comment is read in history, never in the header", "category": "design_insight", "topics": ["Version & build management"], "detail": "Adelina uses version comments (she writes suggestive messages to mark the highlight) but only reads them in the history list — she didn't know the message also shows in the app header. When configuring she works on an unnamed draft, so there's no message to re-anchor on.", "quote": "Da, dar nu mă uit aici… Le citesc doar.", "speaker": "P", "confidence": "medium", "needs": false, "anchors": [120, 114, 122]}, {"id": "idea-15", "title": "Baseline: current export UX is unproblematic — no incidents, takes seconds", "category": "context", "topics": ["Export / download flow"], "detail": "Framing for the rest: Adelina has had no export incidents, exports take a few seconds, and she's used export heavily for multi-environment client work (ProCredit). The findings below are refinements, not a broken flow.", "quote": "eu personal nu am avut incidente… durează câteva secunde.", "speaker": "P", "confidence": "medium", "needs": false, "anchors": [3, 9]}, {"id": "idea-16", "title": "Media-files format mismatch on import (secondhand, from Sorin)", "category": "open_question", "topics": ["Cross-environment migration", "Compatibility warnings"], "detail": "Secondhand report: media included inside a project version came out in a different format than a Global Media Files export, and the target couldn't read it. Adelina wasn't involved and doesn't know how it was resolved — flagged to verify.", "quote": "apăreau într-un alt format pe care nu puteau să-l citească.", "speaker": "P", "confidence": "low", "needs": false, "anchors": [7, 3]}];
+
+const REPAIRS = {"auto": [["Kivi", "Kiwi (client / chatbot)"], ["Rasirrom", "Rasirom (client)"], ["[00:10:59] „l-am lăsat în chat”", "out-of-order chunk timestamp → re-based to ~00:00:08"], ["disfluențe: «nu nu», «să să», «sunt sunt», «adică adică», «ăă»", "__DROP__"], ["@34:26 „Urmărești mesajul ăsta și în header?” (etichetat Adelina)", "re-attributed to facilitator (Mădălina) — it is her question"]], "confirm": [["meciuite", "match-uite  (matched — resursele nu pot fi „matched” pe versiunea target)"], ["@11:14–11:20 „deci doar după poți să afișezi lista asta”", "reassigned to Adelina by adjacency (Antonia answers „Da” next) — confirm who said it"], ["Goj", "colleague name reporting NTT export timings — spelling uncertain"]], "query": [["SDM (@27:01 „nu avem audit log pe SDM”)", "what does „SDM” refer to here — which FlowX module/area?"]]};
+
+const turnToIdeas={};
+IDEAS.forEach(it=>it.anchors.forEach(a=>{(turnToIdeas[a]=turnToIdeas[a]||[]).push(it.id);}));
+const ORIG={};IDEAS.forEach(it=>{ORIG[it.id]=it;});
+const REVIEW={edits:{},notes:{},repairComments:{},repairSectionNote:"",turnComments:{},reportNote:""};
+function effective(it){return Object.assign({},it,REVIEW.edits[it.id]||{});}
+const SPK={"P": "Adelina", "F": "Mădălina", "B": "Antonia", "O": "Obs."};
+
+// Session provenance — flattened onto every exported insight so each one is
+// self-describing in a cross-session pool. `id` (slug <feature>-<date>) is the namespace.
+const SESSION={"id": "export-version-build-2026-06-22", "feature": "Export / download project version & build", "date": "2026-06-22", "participant": "Adelina"};
+
+const scriptEl=document.getElementById('script');
+TURNS.forEach((t,i)=>{
+  const d=document.createElement('div');
+  d.className='turn '+t[0]+(turnToIdeas[i]?' anchored':'');
+  d.id='t-'+i;
+  d.innerHTML=`<div class="meta-r"><span class="spk">${SPK[t[0]]}</span><span class="ts mono">${t[1]}</span></div><span class="txt">${t[2]}</span>`;
+  if(turnToIdeas[i]) d.addEventListener('click',e=>{ if(e.target.classList.contains('unsure'))return; locate(turnToIdeas[i][0],true); });
+  const btn=document.createElement('button');btn.className='rowtool';btn.textContent='💬';
+  btn.title='Comment on this line';
+  btn.addEventListener('click',e=>{e.stopPropagation();toggleTurnComment(i,d);});
+  d.appendChild(btn);
+  scriptEl.appendChild(d);
+});
+
+const kept=new Set(IDEAS.map(i=>i.id)); // all cards included by default
+const ideasEl=document.getElementById('ideas');
+function titleOf(id){const x=IDEAS.find(i=>i.id===id);return x?x.title:id;}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function cardHTML(it){
+  const q=it.needs?`<div class="query"><b>?</b><div><b>Needs confirmation — </b>${it.q}</div></div>`:'';
+  const src=TURNS[it.anchors[0]][1];
+  const nturns=it.anchors.length>1?`<span class="srcn"> · ${it.anchors.length} lines</span>`:'';
+  const topics=(it.topics&&it.topics.length)?`<div class="topics">${it.topics.map(t=>`<span class="topic">${esc(t)}</span>`).join('')}</div>`:'';
+  const tension=(it.conflictsWith&&it.conflictsWith.length)?`<div class="tension"><span class="tlabel">⚡ In tension with</span>${it.conflictsWith.map(cid=>`<button class="tlink" onclick="event.stopPropagation();locate('${cid}',true)">${titleOf(cid)}</button>`).join('')}</div>`:'';
+  return `<input type="checkbox" class="keep"${kept.has(it.id)?' checked':''} onchange="toggle('${it.id}',this.checked)" onclick="event.stopPropagation()" aria-label="keep">
+    <div>
+      <div class="tagrow">
+        <span class="tag ${it.category}">${it.category.replace('_',' ')}</span>
+        <span class="conf ${it.confidence}"><span class="dot"></span>${it.confidence}</span>
+        <span class="src">⌖ ${src}${nturns}</span>
+      </div>
+      <h3>${esc(it.title)}</h3>
+      <p class="detail">${esc(it.detail)}</p>
+      <blockquote class="quote">“${esc(it.quote)}”</blockquote>
+      <div class="who">${SPK[it.speaker]==='Facil.'?'Facilitator':SPK[it.speaker]}</div>
+      ${q}
+      ${tension}
+      ${topics}
+    </div>`;
+}
+// every id involved in a conflict (own links + cards others link to), for the filter
+const conflictIds=new Set();
+IDEAS.forEach(it=>(it.conflictsWith||[]).forEach(cid=>{conflictIds.add(it.id);conflictIds.add(cid);}));
+IDEAS.forEach(it=>{
+  const card=document.createElement('div');
+  card.className='card';card.id='c-'+it.id;card.dataset.cat=it.category;
+  card.dataset.topics=(it.topics||[]).join('|');
+  card.dataset.conflict=conflictIds.has(it.id)?'1':'';
+  card.addEventListener('click',()=>{if(card.classList.contains('editing'))return;locate(it.id,false);});
+  ideasEl.appendChild(card);
+  rerenderCard(it.id);
+});
+refresh(); // seed kept counters (all cards included by default)
+
+// category + topic filters (ANDed)
+const cats=['all',...new Set(IDEAS.map(i=>i.category))];
+const sel=document.getElementById('catFilter');
+cats.forEach(c=>{const o=document.createElement('option');o.value=c;
+  o.textContent=c==='all'?'All categories':c.replace('_',' ');sel.appendChild(o);});
+const topicSel=document.getElementById('topicFilter');
+const topicList=['all',...new Set(IDEAS.flatMap(i=>i.topics||[]))];
+topicList.forEach(t=>{const o=document.createElement('option');o.value=t;
+  o.textContent=t==='all'?'All topics':t;topicSel.appendChild(o);});
+let conflictsOnly=false;
+function toggleConflicts(){conflictsOnly=!conflictsOnly;
+  document.getElementById('conflictToggle').setAttribute('aria-pressed',conflictsOnly);applyFilter();}
+function applyFilter(){const c=sel.value,t=topicSel.value;
+  document.querySelectorAll('.card').forEach(card=>{
+    const okCat=(c==='all'||card.dataset.cat===c);
+    const okTopic=(t==='all'||(card.dataset.topics||'').split('|').includes(t));
+    const okConflict=(!conflictsOnly||card.dataset.conflict==='1');
+    card.style.display=(okCat&&okTopic&&okConflict)?'':'none';});}
+
+const repEl=document.getElementById('repairs');
+function repSection(title,arr,bucket){
+  const sec=document.createElement('div');sec.className='repsec';
+  const rows=arr.map(([o,f])=>{
+    if(bucket==='query')return `<div class="rep"><span class="b query">query</span><span class="orig mono">${o}</span><span class="arrow">→</span><span class="qtext">${f}</span></div>`;
+    const fix=f==='__DROP__'?`<span class="fix drop mono">[dropped — fragments]</span>`:`<span class="fix mono">${f}</span>`;
+    return `<div class="rep"><span class="b ${bucket}">${bucket}</span><span class="orig mono">${o}</span><span class="arrow">→</span>${fix}</div>`;
+  }).join('');
+  sec.innerHTML=`<h2>${title} <button class="sectool" data-bucket="${bucket}">💬 comment on this section</button></h2>${rows}`;
+  repEl.appendChild(sec);
+  // section comment
+  sec.querySelector('.sectool').addEventListener('click',e=>toggleSectionComment(bucket,sec));
+  // per-row comment tools
+  sec.querySelectorAll('.rep').forEach((row,i)=>{
+    const orig=arr[i][0];
+    const btn=document.createElement('button');btn.className='rowtool';btn.textContent='💬';
+    btn.title='Comment on this repair';
+    btn.addEventListener('click',()=>toggleRepairComment(bucket,orig,row));
+    row.appendChild(btn);
+  });
+}
+repSection('Applied confidently',REPAIRS.auto,'auto');
+repSection('Best guess — confirm',REPAIRS.confirm,'confirm');
+repSection('Needs your input',REPAIRS.query,'query');
+
+const repCount=REPAIRS.auto.length+REPAIRS.confirm.length+REPAIRS.query.length;
+set('m-ideas',IDEAS.length);set('m-rep',repCount);
+set('m-query',REPAIRS.query.length+IDEAS.filter(i=>i.needs).length);
+function set(id,v){document.getElementById(id).textContent=v;}
+
+let activeCard=null;
+function locate(id,fromTranscript){
+  const it=IDEAS.find(x=>x.id===id);if(!it)return;
+  document.querySelectorAll('.turn.hl,.turn.hl-primary').forEach(e=>e.classList.remove('hl','hl-primary'));
+  if(activeCard)document.getElementById('c-'+activeCard)?.classList.remove('active');
+  activeCard=id;
+  const card=document.getElementById('c-'+id);card.classList.add('active');
+  it.anchors.forEach((a,idx)=>{const tn=document.getElementById('t-'+a);if(tn)tn.classList.add(idx===0?'hl-primary':'hl');});
+  const first=document.getElementById('t-'+it.anchors[0]);if(first)first.scrollIntoView({behavior:'smooth',block:'center'});
+  if(fromTranscript)card.scrollIntoView({behavior:'smooth',block:'center'});
+  updateEdgeHints();
+}
+// Off-screen edge indicators: when the active idea's source turns sit outside the
+// visible transcript, show "N above / N below" pills that jump to the nearest one.
+const EDGE_PAD=4;
+function activeAnchorEls(){if(!activeCard)return[];const it=IDEAS.find(x=>x.id===activeCard);
+  return it?it.anchors.map(a=>document.getElementById('t-'+a)).filter(Boolean):[];}
+function updateEdgeHints(){
+  const up=document.getElementById('edge-up'),dn=document.getElementById('edge-dn');
+  const sc=document.getElementById('script'),scRect=sc.getBoundingClientRect();
+  let above=0,below=0;
+  activeAnchorEls().forEach(el=>{const r=el.getBoundingClientRect();
+    if(r.bottom<scRect.top+EDGE_PAD)above++;else if(r.top>scRect.bottom-EDGE_PAD)below++;});
+  up.classList.toggle('show',above>0);document.getElementById('edge-up-n').textContent=above+(above===1?' line':' lines');
+  dn.classList.toggle('show',below>0);document.getElementById('edge-dn-n').textContent=below+(below===1?' line':' lines');
+}
+function jumpEdge(dir){
+  const sc=document.getElementById('script'),scRect=sc.getBoundingClientRect();
+  const off=activeAnchorEls().map(el=>({el,r:el.getBoundingClientRect()}))
+    .filter(o=>dir<0?o.r.bottom<scRect.top+EDGE_PAD:o.r.top>scRect.bottom-EDGE_PAD);
+  if(!off.length)return;
+  const target=dir<0?off.reduce((a,b)=>b.r.top>a.r.top?b:a):off.reduce((a,b)=>b.r.top<a.r.top?b:a);
+  target.el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+(function(){let raf=0;const sc=document.getElementById('script');
+  const tick=()=>{raf=0;updateEdgeHints();};
+  sc.addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(tick);},{passive:true});
+  addEventListener('resize',()=>{if(!raf)raf=requestAnimationFrame(tick);});})();
+
+function toggle(id,on){on?kept.add(id):kept.delete(id);document.getElementById('c-'+id).classList.toggle('excluded',!on);refresh();commitReviewChange();}
+function refresh(){document.getElementById('m-kept').textContent=kept.size;
+  if(document.getElementById('exportPanel').classList.contains('show'))renderOut();}
+function selectAll(on){document.querySelectorAll('.card').forEach(card=>{ if(card.style.display==='none')return;
+  const cb=card.querySelector('.keep');cb.checked=on;const id=card.id.slice(2);on?kept.add(id):kept.delete(id);card.classList.toggle('excluded',!on);});refresh();commitReviewChange();}
+function showTab(t){['ideas','rep','how'].forEach(name=>{
+  document.getElementById('view-'+name).classList.toggle('hidden',name!==t);
+  document.getElementById('tab-'+name).setAttribute('aria-selected',name===t);});}
+
+let fmt='md';
+function openExport(){document.getElementById('exportPanel').classList.add('show');renderOut();document.getElementById('exportPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function closeExport(){document.getElementById('exportPanel').classList.remove('show');}
+function setFmt(f){fmt=f;document.getElementById('fmt-md').setAttribute('aria-pressed',f==='md');document.getElementById('fmt-json').setAttribute('aria-pressed',f==='json');renderOut();}
+function keptList(){return IDEAS.filter(i=>kept.has(i.id));}
+function renderOut(){document.getElementById('outBox').value=fmt==='md'?toMd():toJson();}
+function toJson(){return JSON.stringify(keptList().map(({id,title,category,topics,detail,quote,speaker,confidence,needs,q,anchors})=>
+  ({id:SESSION.id+':'+id,session:SESSION.id,feature:SESSION.feature,date:SESSION.date,participant:SESSION.participant,
+    title,category,topics:topics||[],detail,evidence_quote:quote,speaker:SPK[speaker],confidence,
+    needs_confirmation:!!needs,question:q||null,timestamps:anchors.map(a=>TURNS[a][1])})),null,2);}
+function toMd(){const list=keptList();if(!list.length)return "# Nothing kept yet — check some ideas.";
+  const g={};list.forEach(i=>{(g[i.category]=g[i.category]||[]).push(i);});
+  const label={pain_point:"Pain points",feature_request:"Feature requests",naming_copy:"Naming & copy",
+    design_decision:"Design decisions",design_insight:"Design insights",open_question:"Open questions",context:"Context"};
+  let out=`# ${SESSION.feature} — kept ideas (${list.length})\n_Session ${SESSION.id} · ${SESSION.date} · participant ${SESSION.participant}_\n`;
+  for(const c in g){out+=`\n## ${label[c]||c}\n`;g[c].forEach(i=>{out+=`- **${i.title}** — ${i.detail}\n  > ${i.quote}  _(${SPK[i.speaker]}, ${TURNS[i.anchors[0]][1]})_\n`;
+    if(i.topics&&i.topics.length)out+=`  > _Topics: ${i.topics.join(', ')}_\n`;
+    if(i.needs)out+=`  > _Needs confirmation: ${i.q}_\n`;});}
+  return out;}
+function copyOut(){const t=document.getElementById('outBox');t.select();navigator.clipboard.writeText(t.value).then(()=>toast('Copied'));}
+function downloadOut(){const blob=new Blob([document.getElementById('outBox').value],{type:fmt==='md'?'text/markdown':'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kept-ideas.'+(fmt==='md'?'md':'json');a.click();URL.revokeObjectURL(a.href);toast('Downloaded');}
+// ---- Review round-trip ----
+const CATS=['pain_point','feature_request','naming_copy','design_decision','design_insight','open_question','context'];
+const CONFS=['high','medium','low'];
+function nonEmpty(s){return typeof s==='string'&&s.trim().length>0;}
+function changedFields(id){
+  const e=REVIEW.edits[id];if(!e)return{};const o=ORIG[id],out={};
+  for(const k in e){const a=k==='topics'?(o.topics||[]):o[k];
+    if(JSON.stringify(a)!==JSON.stringify(e[k]))out[k]=e[k];}
+  return out;
+}
+function buildPacket(){
+  const cards=[];
+  IDEAS.forEach(it=>{
+    const ch=changedFields(it.id),note=REVIEW.notes[it.id],excluded=!kept.has(it.id);
+    const hasEdit=Object.keys(ch).length>0;
+    if(hasEdit||excluded||nonEmpty(note)){const c={id:it.id};
+      if(excluded)c.excluded=true;if(hasEdit)c.edits=ch;if(nonEmpty(note))c.note=note.trim();cards.push(c);}
+  });
+  const repairs=[];
+  Object.keys(REVIEW.repairComments).forEach(key=>{const cm=REVIEW.repairComments[key];
+    if(!nonEmpty(cm))return;const ix=key.indexOf('\t');
+    repairs.push({bucket:key.slice(0,ix),orig:key.slice(ix+1),comment:cm.trim()});});
+  const turns=[];
+  Object.keys(REVIEW.turnComments).forEach(i=>{const cm=REVIEW.turnComments[i];
+    if(nonEmpty(cm))turns.push({i:+i,comment:cm.trim()});});
+  const p={session:SESSION.id};
+  if(nonEmpty(REVIEW.reportNote))p.report_note=REVIEW.reportNote.trim();
+  if(cards.length)p.cards=cards;
+  if(repairs.length)p.repairs=repairs;
+  if(nonEmpty(REVIEW.repairSectionNote))p.repair_section_note=REVIEW.repairSectionNote.trim();
+  if(turns.length)p.turns=turns;
+  return p;
+}
+function packetCounts(){
+  let edits=0,comments=0,excluded=0;
+  IDEAS.forEach(it=>{if(Object.keys(changedFields(it.id)).length)edits++;
+    if(!kept.has(it.id))excluded++;if(nonEmpty(REVIEW.notes[it.id]))comments++;});
+  Object.values(REVIEW.repairComments).forEach(c=>{if(nonEmpty(c))comments++;});
+  Object.values(REVIEW.turnComments).forEach(c=>{if(nonEmpty(c))comments++;});
+  if(nonEmpty(REVIEW.repairSectionNote))comments++;
+  if(nonEmpty(REVIEW.reportNote))comments++;
+  return {edits,comments,excluded};
+}
+function renderTally(){
+  const {edits,comments,excluded}=packetCounts();
+  const parts=[];
+  parts.push(`<em>${edits}</em> edit${edits===1?'':'s'}`);
+  parts.push(`<em>${comments}</em> comment${comments===1?'':'s'}`);
+  parts.push(`<em>${excluded}</em> excluded`);
+  document.getElementById('review-tally').innerHTML=parts.join(' · ');
+  document.getElementById('sendReview').disabled=(edits+comments+excluded===0);
+}
+function commitReviewChange(){renderTally();
+  if(document.getElementById('reviewPanel').classList.contains('show'))renderReview();}
+let rfmt='json';
+function packetToMd(p){
+  let o=`# Review for ${p.session}\n`;
+  if(p.report_note)o+=`\n**Report note:** ${p.report_note}\n`;
+  (p.cards||[]).forEach(c=>{o+=`\n## ${c.id}${c.excluded?' — EXCLUDED':''}\n`;
+    if(c.edits)for(const k in c.edits)o+=`- edit \`${k}\` → ${JSON.stringify(c.edits[k])}\n`;
+    if(c.note)o+=`- note: ${c.note}\n`;});
+  if(p.repairs&&p.repairs.length){o+=`\n## Repairs\n`;
+    p.repairs.forEach(r=>{o+=`- [${r.bucket}] \`${r.orig}\` — ${r.comment}\n`;});}
+  if(p.repair_section_note)o+=`\n**Repair-log note:** ${p.repair_section_note}\n`;
+  if(p.turns&&p.turns.length){o+=`\n## Transcript\n`;
+    p.turns.forEach(t=>{o+=`- turn ${t.i} (${TURNS[t.i]?TURNS[t.i][1]:'?'}): ${t.comment}\n`;});}
+  return o;
+}
+function renderReview(){const p=buildPacket();
+  document.getElementById('reviewBox').value=rfmt==='json'?JSON.stringify(p,null,2):packetToMd(p);}
+function openReview(){document.getElementById('reviewPanel').classList.add('show');renderReview();
+  document.getElementById('reviewPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function closeReview(){document.getElementById('reviewPanel').classList.remove('show');}
+function setReviewFmt(f){rfmt=f;document.getElementById('rfmt-json').setAttribute('aria-pressed',f==='json');
+  document.getElementById('rfmt-md').setAttribute('aria-pressed',f==='md');renderReview();}
+function copyReview(){const t=document.getElementById('reviewBox');t.select();
+  navigator.clipboard.writeText(t.value).then(()=>toast('Copied'));}
+function downloadReview(){const ext=rfmt==='json'?'json':'md';
+  const blob=new Blob([document.getElementById('reviewBox').value],
+    {type:rfmt==='json'?'application/json':'text/markdown'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='review-'+SESSION.id+'.'+ext;a.click();URL.revokeObjectURL(a.href);toast('Downloaded');}
+renderTally();
+function rerenderCard(id){
+  const it=IDEAS.find(x=>x.id===id);const card=document.getElementById('c-'+id);
+  card.classList.remove('editing');
+  card.innerHTML=cardHTML(effective(it));
+  attachCardTools(card,it);applyCardState(card,id);
+}
+function applyCardState(card,id){
+  const edited=Object.keys(changedFields(id)).length>0;
+  card.classList.toggle('has-edit',edited);
+  card.classList.toggle('has-note',nonEmpty(REVIEW.notes[id]));
+  card.classList.toggle('excluded',!kept.has(id));
+  const body=card.querySelector(':scope > div:not(.cardtools)'); // the <div> from cardHTML
+  let flags=card.querySelector('.flags');if(flags)flags.remove();
+  const tags=[];
+  if(edited)tags.push({cls:'edit',label:'edited',title:'Undo edits — restore the original wording',act:()=>revertEdit(id)});
+  if(nonEmpty(REVIEW.notes[id]))tags.push({cls:'note',label:'comment',title:'Remove this comment',act:()=>removeNote(id)});
+  if(tags.length){const f=document.createElement('div');f.className='flags';
+    tags.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='flag '+t.cls;b.title=t.title;
+      b.innerHTML=`${t.label} <span class="flag-x">✕</span>`;
+      b.addEventListener('click',ev=>{ev.stopPropagation();t.act();});
+      f.appendChild(b);});
+    body.appendChild(f);}
+}
+function revertEdit(id){delete REVIEW.edits[id];rerenderCard(id);commitReviewChange();}
+function removeNote(id){delete REVIEW.notes[id];rerenderCard(id);commitReviewChange();}
+function attachCardTools(card,it){
+  const t=document.createElement('div');t.className='cardtools';
+  t.innerHTML=`<button data-t="edit">✎ Edit</button><button data-t="comment">💬 Comment</button>`;
+  t.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();const k=b.dataset.t;
+    if(k==='edit')enterEdit(it.id);
+    else if(k==='comment')toggleCardComment(it.id);}));
+  card.appendChild(t);
+}
+function enterEdit(id){
+  const it=IDEAS.find(x=>x.id===id);const card=document.getElementById('c-'+id);
+  // compute effective BEFORE assigning undefined-keyed edit object (Object.assign copies undefineds)
+  const eff=effective(it);
+  const e=REVIEW.edits[id]=Object.assign({title:undefined,detail:undefined,quote:undefined,
+    category:undefined,confidence:undefined,topics:undefined},REVIEW.edits[id]||{});
+  // seed from effective values
+  ['title','detail','quote','category','confidence'].forEach(k=>{if(e[k]===undefined)e[k]=eff[k];});
+  if(e.topics===undefined)e.topics=(eff.topics||[]).slice();
+  card.classList.add('editing');
+  card.innerHTML=cardEditHTML(it,e);
+  // tool cluster shows Done
+  const t=document.createElement('div');t.className='cardtools';
+  t.innerHTML=`<button data-t="revert">↺ Revert</button><button data-t="done" class="on">✓ Done</button>`;
+  t.querySelectorAll('button').forEach(b=>b.addEventListener('click',ev=>{ev.stopPropagation();
+    b.dataset.t==='revert'?revertEdit(id):commitEdit(id);}));
+  card.appendChild(t);
+  wireEdit(card,id);
+}
+function cardEditHTML(it,e){
+  const src=TURNS[it.anchors[0]][1];
+  const catOpts=CATS.map(c=>`<option value="${c}"${c===e.category?' selected':''}>${c.replace('_',' ')}</option>`).join('');
+  const confOpts=CONFS.map(c=>`<option value="${c}"${c===e.confidence?' selected':''}>${c}</option>`).join('');
+  const chips=(e.topics||[]).map((tp,i)=>`<span class="topic echip" data-i="${i}">${tp}<button data-rm="${i}">×</button></span>`).join('');
+  return `<input type="checkbox" class="keep" disabled${kept.has(it.id)?' checked':''} aria-label="keep">
+    <div>
+      <div class="tagrow">
+        <select class="esel" data-f="category">${catOpts}</select>
+        <select class="esel" data-f="confidence">${confOpts}</select>
+        <span class="src">⌖ ${src}</span>
+      </div>
+      <h3 class="efield" contenteditable="true" data-f="title">${e.title}</h3>
+      <p class="detail efield" contenteditable="true" data-f="detail">${e.detail}</p>
+      <blockquote class="quote efield" contenteditable="true" data-f="quote">${e.quote}</blockquote>
+      <div class="topics" data-topics-edit>${chips}<input class="topic-add" placeholder="+ topic" /></div>
+    </div>`;
+}
+function wireEdit(card,id){
+  const e=REVIEW.edits[id];
+  card.querySelectorAll('.efield').forEach(el=>{
+    el.addEventListener('click',ev=>ev.stopPropagation());
+    el.addEventListener('input',()=>{e[el.dataset.f]=el.textContent;commitReviewChange();});});
+  card.querySelectorAll('.esel').forEach(sel=>{
+    sel.addEventListener('click',ev=>ev.stopPropagation());
+    sel.addEventListener('change',()=>{e[sel.dataset.f]=sel.value;commitReviewChange();});});
+  const tw=card.querySelector('[data-topics-edit]');
+  tw.addEventListener('click',ev=>{ev.stopPropagation();
+    const rm=ev.target.getAttribute('data-rm');
+    if(rm!==null){e.topics.splice(+rm,1);redrawTopics(card,id);commitReviewChange();}});
+  const add=tw.querySelector('.topic-add');
+  add.addEventListener('keydown',ev=>{ev.stopPropagation();
+    if(ev.key==='Enter'&&nonEmpty(add.value)){e.topics.push(add.value.trim());add.value='';
+      redrawTopics(card,id);commitReviewChange();}});
+}
+function redrawTopics(card,id){
+  const e=REVIEW.edits[id],tw=card.querySelector('[data-topics-edit]');
+  const chips=(e.topics||[]).map((tp,i)=>`<span class="topic echip" data-i="${i}">${tp}<button data-rm="${i}">×</button></span>`).join('');
+  tw.innerHTML=chips+'<input class="topic-add" placeholder="+ topic" />';
+  const add=tw.querySelector('.topic-add');
+  add.addEventListener('keydown',ev=>{ev.stopPropagation();
+    if(ev.key==='Enter'&&nonEmpty(add.value)){e.topics.push(add.value.trim());add.value='';
+      redrawTopics(card,id);commitReviewChange();}});
+}
+function commitEdit(id){
+  // prune unchanged fields so the packet only carries real edits
+  const ch=changedFields(id);
+  if(Object.keys(ch).length===0)delete REVIEW.edits[id];else REVIEW.edits[id]=ch;
+  rerenderCard(id);commitReviewChange();
+}
+function commentField(initial,onChange,placeholder,showRemove){
+  const wrap=document.createElement('div');wrap.className='cmt';
+  const ta=document.createElement('textarea');ta.className='cmt-in';
+  ta.value=initial||'';ta.placeholder=placeholder||'Comment for Claude…';
+  ta.addEventListener('click',e=>e.stopPropagation());
+  ta.addEventListener('input',()=>onChange(ta.value));
+  wrap.appendChild(ta);
+  // showRemove defaults true; card comments pass false since their "comment ✕" chip already removes
+  if(showRemove!==false){
+    const rm=document.createElement('button');rm.type='button';rm.className='cmt-rm';rm.textContent='Remove comment';
+    rm.addEventListener('click',e=>{e.stopPropagation();onChange('');wrap.remove();});
+    wrap.appendChild(rm);
+  }
+  return wrap;
+}
+function toggleCardComment(id){
+  const card=document.getElementById('c-'+id);
+  const host=card.querySelector(':scope > div'); // the card body <div> from cardHTML
+  let box=host.querySelector(':scope > .cmt');
+  if(box){const ta=box.querySelector('.cmt-in');ta.focus();return;}
+  box=commentField(REVIEW.notes[id]||'',v=>{REVIEW.notes[id]=v;applyCardState(card,id);commitReviewChange();},'What should change about this insight? (merge, re-scope, wrong speaker…)',false);
+  host.appendChild(box);box.querySelector('.cmt-in').focus();
+}
+function toggleReportNote(btn){
+  const host=btn.parentElement;let box=host.querySelector('.cmt');
+  if(box){box.querySelector('.cmt-in').focus();return;}
+  box=commentField(REVIEW.reportNote,v=>{REVIEW.reportNote=v;
+    btn.classList.toggle('on',nonEmpty(v));commitReviewChange();},
+    'Overall direction: too many cards, wrong framing, merge these two…');
+  host.appendChild(box);box.querySelector('.cmt-in').focus();
+}
+function repairKey(bucket,orig){return bucket+'\t'+orig;}
+function toggleRepairComment(bucket,orig,row){
+  let box=row.querySelector(':scope > .cmt');
+  if(box){box.querySelector('.cmt-in').focus();return;}
+  const key=repairKey(bucket,orig);const btn=row.querySelector('.rowtool');
+  box=commentField(REVIEW.repairComments[key]||'',v=>{REVIEW.repairComments[key]=v;
+    btn.classList.toggle('on',nonEmpty(v));commitReviewChange();},'Comment on this repair (e.g. leave as-is, wrong fix)…');
+  box.classList.add('inline');row.appendChild(box);box.querySelector('.cmt-in').focus();
+  btn.classList.toggle('on',nonEmpty(REVIEW.repairComments[key]));
+}
+function toggleSectionComment(bucket,sec){
+  let box=sec.querySelector(':scope > .cmt');const btn=sec.querySelector('.sectool');
+  if(box){box.querySelector('.cmt-in').focus();return;}
+  box=commentField(REVIEW.repairSectionNote,v=>{REVIEW.repairSectionNote=v;
+    btn.classList.toggle('on',nonEmpty(v));commitReviewChange();},'Comment on the repair log as a whole…');
+  box.classList.add('inline');sec.appendChild(box);box.querySelector('.cmt-in').focus();
+}
+function toggleTurnComment(i,turn){
+  let box=turn.querySelector(':scope > .cmt');const btn=turn.querySelector('.rowtool');
+  if(box){box.querySelector('.cmt-in').focus();return;}
+  box=commentField(REVIEW.turnComments[i]||'',v=>{REVIEW.turnComments[i]=v;
+    btn.classList.toggle('on',nonEmpty(v));commitReviewChange();},'Comment on this line (e.g. wrong speaker, misattributed)…');
+  box.classList.add('inline');turn.appendChild(box);box.querySelector('.cmt-in').focus();
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400);}
+</script>
+</body>
+</html>
