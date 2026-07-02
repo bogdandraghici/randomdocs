@@ -167,41 +167,6 @@
     </div>
   </section>
 
-  <section>
-    <h2>How it behaves</h2>
-    <ul class="behave">
-        <li><span class="when">when</span> Integrations → ML Models is opened with <code>wks_builds_read</code> <span class="arrow">→</span> <span class="then">the ML Models list renders (seeded banking classifiers)</span></li>
-        <li><span class="when">when</span> + is clicked and a name is typed <span class="arrow">→</span> <span class="then">Save enables and the new model is added to the top of the list</span></li>
-        <li><span class="when">when</span> a model row is opened <span class="arrow">→</span> <span class="then">a fullscreen detail page shows — tabs in order: Trained Candidates, Data, Classes</span></li>
-        <li><span class="when">when</span> a non-main candidate’s Promote to main is clicked <span class="arrow">→</span> <span class="then">a confirm modal explains the effect; confirming moves the “main” pointer with an in-place expand animation (no reorder)</span></li>
-        <li><span class="when">when</span> Compare two is toggled and exactly two candidates are picked <span class="arrow">→</span> <span class="then">Compare selected opens the comparison page (ordered older → newer)</span></li>
-        <li><span class="when">when</span> a corpus row is hovered <span class="arrow">→</span> <span class="then">a pencil reveals; editing swaps class + split to dropdowns (corpus-only; UNKNOWN is locked to test)</span></li>
-        <li><span class="when">when</span> train pages are selected and Train candidate is clicked <span class="arrow">→</span> <span class="then">a stepped progress runs, then a new immutable candidate is appended (never a replace) and the view navigates to it</span></li>
-        <li><span class="when">when</span> the first candidate of a never-trained model is created <span class="arrow">→</span> <span class="then">it auto-becomes main (nothing else could be); otherwise main changes only via an explicit promote</span></li>
-        <li><span class="when">when</span> a mixed-batch archive is dropped and Review predictions is clicked <span class="arrow">→</span> <span class="then">the model auto-labels each page; ↑↓ / 1–9 / Space / Enter drive review; only reviewed pages are added</span></li>
-        <li><span class="when">when</span> a confusion-matrix cell is clicked <span class="arrow">→</span> <span class="then">the testing-data table below filters to exactly those pages</span></li>
-        <li><span class="when">when</span> a model has only the locked UNKNOWN class <span class="arrow">→</span> <span class="then">every surface shows a guided empty state instead of zeros</span></li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Acceptance criteria</h2>
-    <ul class="criteria">
-        <li><span class="box" aria-hidden="true"></span><span>ML Models is reachable via <b>Integrations → ML Models</b> (between Data Sources and Workflows) for a user with <code>wks_builds_read</code></span></li>
-        <li><span class="box" aria-hidden="true"></span><span><b>New ML Model</b> requires a name (Save disabled until typed) and adds the model to the top of the list</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>Model detail opens fullscreen with a resource-header (back + <code>ML Models / {model}</code> breadcrumbs + row-actions kebab) and tabs in order: Trained Candidates, Data, Classes</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>Exactly one candidate carries the amber <b>Main</b> badge and renders in place; non-main cards show <b>Promote to main</b> (confirm modal) + a kebab with Delete; <b>Compare two</b> appears only with ≥2 candidates</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>The Corpus table is document-grouped with per-row editable class + train/test split and Class/Split/Batch multi-select filters, and drives both <b>Delete selected</b> and <b>Train candidate</b></span></li>
-        <li><span class="box" aria-hidden="true"></span><span>Training <b>appends</b> a new immutable candidate (never replaces); the first candidate of a never-trained model auto-becomes main; main otherwise changes only via an explicit promote</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>Classes show green (positive) / red (negative) example chips; the locked <code>UNKNOWN</code> <b>Default</b> is editable but not removable</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>On a candidate’s details page, clicking a confusion-matrix cell filters the testing-data table to those pages</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>The comparison page shows a how-it-tested delta, a Δ confusion matrix, per-class distribution deltas, and an Improved / Still-wrong / Degraded / Still-right / All diff</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>An <code>UNKNOWN</code>-only / never-trained model degrades every surface to a guided empty state (no zeros, no crash)</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>No regression in existing Designer navigation and resource pages; ML detail sub-routes render fullscreen (no sidebar)</span></li>
-        <li><span class="box" aria-hidden="true"></span><span>Matches the FlowX Design System: resource-header sub-header, DS Tabs (underline, <code>#006bd8</code> active), and DS form controls (<code>flx-checkbox</code> / <code>flx-switch</code> / segmented control) — no ad-hoc inline color classes</span></li>
-    </ul>
-  </section>
-
   <div class="footer">
     <div class="tag">■ Frozen build</div>
     <p>Source record for engineering &amp; QA: this design is frozen at git tag <code>accepted/ml-models</code>, commit <code>86538644cc7bff2fc948d5c4b8c62954d69fde41</code> — independent of any branch or PR. The exact approved build is recoverable from that tag.</p>
