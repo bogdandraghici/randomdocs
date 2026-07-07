@@ -78,7 +78,7 @@
   /* Small — improvement-suggestion row: rounded-lg(8), border, p-2(8), gap-2(8) */
   .c-S{background:#fff;border:1px solid var(--neutral-100);border-radius:8px;padding:8px;display:flex;align-items:flex-start;gap:8px}
   .ttl{font-size:18px;font-weight:700;color:var(--neutral-900)}
-  .ttl-sm{font-size:16px;font-weight:700;color:var(--neutral-900)}
+  .ttl-sm{font-size:18px;font-weight:700;color:var(--neutral-900)}
   .slot{border:1px dashed var(--neutral-200);border-radius:8px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--neutral-400);font-size:12px}
   /* score tile internals — text-xs/6 label, text-2xl value, h-1 bar */
   .sc-lab{font-size:12px;line-height:24px;font-weight:600;color:var(--neutral-500)}
@@ -108,7 +108,7 @@
   .td-pct{color:var(--neutral-400)}
   /* "How it tested" (Primary section card) internals — reproduced from ml-matrix-summary */
   .ht-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .ht-title{font-size:16px;font-weight:700;color:var(--neutral-900)}
+  .ht-title{font-size:18px;font-weight:700;color:var(--neutral-900)}
   .ht-right{display:flex;align-items:center;gap:20px}
   .ht-counts{display:flex;gap:20px;font-size:12px}
   .ht-correct{font-weight:600;color:var(--green-700)}
@@ -127,6 +127,32 @@
   .tone-ok{color:var(--green-700)} .dot-ok{background:var(--green-500)}
   .tone-warn{color:var(--orange-700)} .dot-warn{background:var(--orange-500)}
   .tone-bad{color:var(--red-600)} .dot-bad{background:var(--red-500)}
+  /* shared inline-icon + Model Providers (Primary, with icon) — reproduced from model-providers.component */
+  .mp-wrap{display:flex;flex-direction:column;gap:24px}
+  .mp-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+  .mp-id{display:flex;align-items:center;gap:16px}
+  .mp-icon{display:flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:8px;background:var(--neutral-50);flex:0 0 auto;color:var(--neutral-600)}
+  .mp-name{font-size:18px;font-weight:700;color:var(--neutral-900)}
+  .mp-key{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--neutral-500)}
+  .mp-keyico{display:inline-flex;color:var(--neutral-500)}
+  .mp-badge{display:flex;align-items:center;gap:10px;border:1px solid var(--neutral-100);border-radius:8px;padding:6px 16px;height:48px}
+  .mp-badge-lab{font-size:14px;color:var(--neutral-500)}
+  .mp-badge-val{font-size:14px;font-weight:600;color:var(--neutral-900)}
+  .mp-hr{border:0;border-top:1px solid var(--neutral-100);margin:0}
+  .mp-actions{display:flex;align-items:center;justify-content:space-between}
+  .ds-btn-tert{display:inline-flex;align-items:center;height:36px;padding:6px 12px;border:0;border-radius:8px;background:transparent;color:var(--blue-500);font-family:var(--sans);font-size:14px;font-weight:600;cursor:default}
+  .ds-icon-btn{display:inline-flex;align-items:center;justify-content:center;height:28px;width:28px;border:0;border-radius:8px;background:transparent;color:var(--red-500);cursor:default}
+  /* Text Generation (Secondary, with icon) — reproduced from defaults-and-fallbacks.component */
+  .tg-wrap{display:flex;flex-direction:column;gap:16px}
+  .tg-head{display:flex;align-items:flex-start;gap:16px}
+  .tg-icon{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:8px;background:var(--neutral-50);flex:0 0 auto;color:var(--neutral-500)}
+  .tg-title{font-size:18px;font-weight:700;color:var(--neutral-900)}
+  .tg-desc{font-size:12px;line-height:1.6;color:var(--neutral-500)}
+  .tg-selects{display:flex;gap:16px}
+  .tg-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:4px}
+  .tg-lab{font-size:14px;font-weight:600;color:var(--neutral-900)}
+  .tg-select{display:flex;align-items:center;justify-content:space-between;gap:6px;height:36px;padding:0 12px;border:1px solid var(--neutral-100);border-radius:8px;background:#fff;font-size:14px;color:var(--neutral-900)}
+  .tg-select svg{color:var(--neutral-500);flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -163,6 +189,7 @@
 <!-- ===================== PRIMARY ===================== -->
 <h2><span class="badge b-pri">Primary</span> &nbsp;Cards that structure a page</h2>
 <p>White surface, drop shadow, no border. <b>Always 24px padding</b> (both axes) and a <b>16px gap</b>. They sit directly on the grey page background and hold everything else.</p>
+<p class="note"><b>Titles and icons are optional.</b> A Primary card may lead with an icon tile + title (the provider card below), carry a title alone (the Evals and &ldquo;How it tested&rdquo; cards), or omit both.</p>
 
 <h3>Spec &amp; live render</h3>
 <div class="row">
@@ -217,6 +244,31 @@
         </div>
       </div>
     </div>
+    <div class="demoStage">
+      <div class="c-pri m" style="max-width:640px">
+        <div class="mp-wrap">
+          <div class="mp-head">
+            <div class="mp-id">
+              <div class="mp-icon"><svg width="24" height="24" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0,960) scale(1,-1)"><path fill="currentColor" d="M992 464c-0.092 88.818-51.76 165.547-126.664 201.856l-1.336 0.584v5.56c-0.098 105.965-86.022 191.828-192 191.828-66.501 0-125.106-33.809-159.563-85.176l-0.437-0.692c-34.894 52.059-93.499 85.868-160 85.868-105.978 0-191.902-85.863-192-191.819v-5.569c-76.31-36.798-128.030-113.559-128.030-202.4s51.719-165.602 126.692-201.817l1.338-0.583v-5.64c0.098-105.965 86.022-191.828 192-191.828 66.501 0 125.106 33.809 159.563 85.176l0.437 0.692c34.894-52.059 93.499-85.868 160-85.868 105.978 0 191.902 85.863 192 191.819v5.649c76.229 36.867 127.897 113.568 128 202.346v0.014zM352 128c-65.838 0.010-120.060 49.724-127.188 113.661l-0.052 0.579c9.375-1.41 20.205-2.224 31.222-2.24h32.018c17.673 0 32 14.327 32 32s-14.327 32-32 32v0h-32c-0.056 0-0.121 0-0.187 0-88.366 0-160 71.634-160 160 0 69.323 44.087 128.348 105.752 150.569l1.115 0.351c12.526 4.529 21.318 16.317 21.32 30.16v0 26.92c0 70.692 57.308 128 128 128s128-57.308 128-128v0-273.040c-33.724 30.426-78.618 49.040-127.859 49.040-0.050 0-0.099 0-0.149 0h0.008c-17.673 0-32-14.327-32-32s14.327-32 32-32v0c70.692 0 128-57.308 128-128s-57.308-128-128-128v0zM768 304h-32c-17.673 0-32-14.327-32-32s14.327-32 32-32v0h32c11.035 0.016 21.865 0.83 32.454 2.387l-1.214-0.147c-7.18-64.522-61.413-114.24-127.258-114.24-70.692 0-128 57.308-128 128s57.308 128 128 128c0.006 0 0.013 0 0.019 0h-0.001c17.673 0 32 14.327 32 32s-14.327 32-32 32v0c-0.042 0-0.091 0-0.141 0-49.241 0-94.135-18.614-128.028-49.19l0.169 0.15v273.040c0 70.692 57.308 128 128 128s128-57.308 128-128v0-26.92c0.002-13.843 8.794-25.631 21.097-30.089l0.223-0.071c62.78-22.572 106.867-81.598 106.867-150.92 0-88.366-71.634-160-160-160-0.066 0-0.132 0-0.197 0h0.010zM832 512c0-17.673-14.327-32-32-32v0h-16c-79.529 0-144 64.471-144 144v0 16c0 17.673 14.327 32 32 32s32-14.327 32-32v0-16c0-44.183 35.817-80 80-80v0h16c17.673 0 32-14.327 32-32v0zM240 480h-16c-17.673 0-32 14.327-32 32s14.327 32 32 32v0h16c44.183 0 80 35.817 80 80v0 16c0 17.673 14.327 32 32 32s32-14.327 32-32v0-16c0-79.529-64.471-144-144-144v0z"/></g></svg></div>
+              <div>
+                <div class="mp-name">Azure OpenAI</div>
+                <div class="mp-key"><span class="mp-keyico"><svg width="14" height="14" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0,960) scale(1,-1)"><path fill="currentColor" d="M866.28 802.28c-57.924 58.003-137.988 93.883-226.431 93.883-176.731 0-320-143.269-320-320 0-35.493 5.779-69.637 16.446-101.541l-0.655 2.258-220.88-220.88c-11.587-11.498-18.76-27.43-18.76-45.037 0-0.071 0-0.143 0-0.214v0.011-114.76c0-35.346 28.654-64 64-64v0h128c17.673 0 32 14.327 32 32v0 64h64c17.673 0 32 14.327 32 32v0 64h64c0.007 0 0.016 0 0.025 0 8.83 0 16.825 3.577 22.615 9.36v0l38.24 38.28c29.46-9.917 63.385-15.64 98.648-15.64 0.166 0 0.332 0 0.498 0h0.374c176.564 0.221 319.612 143.405 319.612 320 0 88.369-35.82 168.371-93.732 226.28v0zM896 567.6c-4.36-136.36-119-247.44-255.56-247.6h-0.44c-0.128 0-0.279 0-0.43 0-33.914 0-66.28 6.626-95.875 18.653l1.705-0.613c-3.753 1.672-8.133 2.645-12.74 2.645-8.833 0-16.83-3.579-22.62-9.365v0l-43.28-43.32h-82.76c-17.673 0-32-14.327-32-32v0-64h-64c-17.673 0-32-14.327-32-32v0-64h-96v114.76l235.32 235.28c5.787 5.79 9.365 13.787 9.365 22.62 0 4.607-0.974 8.986-2.726 12.944l0.081-0.204c-11.415 27.895-18.041 60.267-18.041 94.187 0 0.258 0 0.516 0.001 0.773v-0.040c0 136.56 111.24 251.2 247.6 255.56 2.545 0.091 5.536 0.142 8.539 0.142 141.385 0 256-114.615 256-256 0-2.962-0.050-5.912-0.15-8.85l0.012 0.427zM768 656c0-26.51-21.49-48-48-48s-48 21.49-48 48c0 26.51 21.49 48 48 48v0c26.51 0 48-21.49 48-48v0z"/></g></svg></span><span>***************** (Own)</span></div>
+              </div>
+            </div>
+            <div class="mp-badge">
+              <span class="mp-badge-lab">Models enabled:</span>
+              <span class="mp-badge-val">12</span>
+              <button class="ds-btn-tert" type="button">Manage</button>
+            </div>
+          </div>
+          <hr class="mp-hr" />
+          <div class="mp-actions">
+            <button class="ds-icon-btn" type="button" aria-label="Delete"><svg width="22" height="22" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0,960) scale(1,-1)"><path fill="currentColor" d="M864 768h-704c-17.673 0-32-14.327-32-32s14.327-32 32-32v0h32v-576c0-35.346 28.654-64 64-64v0h512c35.346 0 64 28.654 64 64v0 576h32c17.673 0 32 14.327 32 32s-14.327 32-32 32v0zM768 128h-512v576h512zM320 864c0 17.673 14.327 32 32 32v0h320c17.673 0 32-14.327 32-32s-14.327-32-32-32v0h-320c-17.673 0-32 14.327-32 32v0z"/></g></svg></button>
+            <button class="ds-btn" type="button"><span>Edit</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -225,6 +277,7 @@
 <!-- ===================== SECONDARY ===================== -->
 <h2><span class="badge b-sec">Secondary</span> &nbsp;Cards that group content inside a Primary</h2>
 <p><code>neutral-100</code> 1px border, <b>no shadow</b>, 16px radius. They come in three sizes — the only difference is padding and gap.</p>
+<p class="note"><b>Titles and icons are optional here too</b> — the Text Generation card pairs a 48px icon tile with a title, the score tiles carry only a label, and the suggestion rows have neither.</p>
 
 <!-- LARGE -->
 <h3><span class="badge b-L">Large</span> padding 24 · gap 16</h3>
@@ -263,6 +316,29 @@
             <span class="td-label" title="NATIONAL_ID">NATIONAL_ID</span>
             <div class="td-track"><i class="td-fill" style="width:28.4%"></i></div>
             <span class="td-val">118&nbsp;<span class="td-pct">(28.4%)</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demoStage">
+      <div class="c-L m" style="max-width:520px;padding:24px">
+        <div class="tg-wrap">
+          <div class="tg-head">
+            <div class="tg-icon"><svg width="24" height="24" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0,960) scale(1,-1)"><path fill="currentColor" d="M512 576h416c17.673 0 32-14.327 32-32s-14.327-32-32-32v0h-416c-17.673 0-32 14.327-32 32s14.327 32 32 32v0zM928 448h-416c-17.673 0-32-14.327-32-32s14.327-32 32-32v0h416c17.673 0 32 14.327 32 32s-14.327 32-32 32v0zM928 320h-608c-17.673 0-32-14.327-32-32s14.327-32 32-32v0h608c17.673 0 32 14.327 32 32s-14.327 32-32 32v0zM928 192h-608c-17.673 0-32-14.327-32-32s14.327-32 32-32v0h608c17.673 0 32 14.327 32 32s-14.327 32-32 32v0zM384 384c17.673 0 32 14.327 32 32s-14.327 32-32 32v0h-32v256h128v-32c0-17.673 14.327-32 32-32s32 14.327 32 32v0 64c0 17.673-14.327 32-32 32v0h-384c-17.673 0-32-14.327-32-32v0-64c0-17.673 14.327-32 32-32s32 14.327 32 32v0 32h128v-256h-32c-17.673 0-32-14.327-32-32s14.327-32 32-32v0z"/></g></svg></div>
+            <div>
+              <div class="tg-title">Text Generation</div>
+              <div class="tg-desc">Text operations (summarization, translation, extraction), data operations (enrichment, generation, transformation), custom agents, and intent classification.</div>
+            </div>
+          </div>
+          <div class="tg-selects">
+            <div class="tg-col">
+              <span class="tg-lab">Default Model</span>
+              <div class="tg-select"><span>GPT-4o</span><svg width="20" height="20" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0,960) scale(1,-1)"><path fill="currentColor" d="M854.64 553.36l-320-320c-5.792-5.798-13.797-9.385-22.64-9.385s-16.848 3.587-22.64 9.385v0l-320 320c-5.794 5.794-9.378 13.799-9.378 22.64 0 17.683 14.335 32.018 32.018 32.018 8.841 0 16.846-3.584 22.64-9.378l297.36-297.4 297.36 297.4c5.794 5.794 13.799 9.378 22.64 9.378 17.683 0 32.018-14.335 32.018-32.018 0-8.841-3.584-16.846-9.378-22.64v0z"/></g></svg></div>
+            </div>
+            <div class="tg-col">
+              <span class="tg-lab">Fallback Model</span>
+              <div class="tg-select"><span>Claude Sonnet 5</span><svg width="20" height="20" viewBox="0 0 1024 1024" aria-hidden="true"><g transform="translate(0,960) scale(1,-1)"><path fill="currentColor" d="M854.64 553.36l-320-320c-5.792-5.798-13.797-9.385-22.64-9.385s-16.848 3.587-22.64 9.385v0l-320 320c-5.794 5.794-9.378 13.799-9.378 22.64 0 17.683 14.335 32.018 32.018 32.018 8.841 0 16.846-3.584 22.64-9.378l297.36-297.4 297.36 297.4c5.794 5.794 13.799 9.378 22.64 9.378 17.683 0 32.018-14.335 32.018-32.018 0-8.841-3.584-16.846-9.378-22.64v0z"/></g></svg></div>
+            </div>
           </div>
         </div>
       </div>
