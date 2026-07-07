@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FlowX Card System — Conclusions</title>
+<style>
+  :root{
+    --blue-50:#e6f0fb;--blue-100:#b0d1f3;--blue-400:#3389e0;--blue-500:#006bd8;--blue-600:#005FC0;--blue-700:#004c99;
+    --neutral-50:#f7f8f9;--neutral-100:#E3E8ED;--neutral-200:#CBD1DB;--neutral-300:#A6B0BE;
+    --neutral-400:#8390a2;--neutral-500:#64748b;--neutral-600:#5b6a7e;--neutral-700:#475263;--neutral-800:#2A313A;--neutral-900:#1d232c;
+    --green-50:#e6f2ef;--green-500:#008060;--green-700:#005b44;--yellow-500:#feb913;
+    --red-500:#e62200;--red-600:#d11f00;--orange-500:#fd6b1c;--orange-700:#b44c14;
+    --app-bg:#f5f5f5;--white:#fff;
+    --elev-app:2px 2px 24px 0 rgba(22,52,98,.08);--elev-m:0 8px 16px #1634621a;--elev-s:0 4px 12px #1634621a;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"Open Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:var(--sans);color:var(--neutral-900);background:var(--app-bg);line-height:1.55;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:40px 24px 96px}
+  header.hero{background:linear-gradient(135deg,#0b1b34,#163462);color:#fff;border-radius:20px;padding:40px 40px 34px;box-shadow:var(--elev-m);margin-bottom:22px}
+  header.hero h1{margin:0 0 8px;font-size:33px;font-weight:800;letter-spacing:-.02em}
+  header.hero p{margin:0;color:#b9c6da;max-width:780px}
+  .hero .meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;gap:6px;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:#ffffff1a;color:#dbe6f5;border:1px solid #ffffff26}
+  h2{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:46px 0 8px}
+  h3{font-size:18px;font-weight:800;margin:26px 0 4px;display:flex;align-items:center;gap:10px}
+  .badge{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:6px}
+  .b-pri{background:var(--blue-50);color:var(--blue-700)}
+  .b-sec{background:var(--neutral-100);color:var(--neutral-700)}
+  .b-L{background:#eef4ff;color:var(--blue-700);border:1px solid var(--blue-100)}
+  .b-M{background:var(--green-50);color:var(--green-700)}
+  .b-S{background:#fff6e0;color:#8c660a}
+  p{margin:9px 0}
+  .lead{font-size:16.5px;color:var(--neutral-700)}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--neutral-50);border:1px solid var(--neutral-100);border-radius:5px;padding:1px 6px;color:var(--neutral-800)}
+  .rules{background:var(--white);border-radius:16px;box-shadow:var(--elev-app);padding:24px 28px;margin:16px 0}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;margin:8px 0}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--neutral-100);vertical-align:middle}
+  th{background:var(--neutral-50);font-weight:700;color:var(--neutral-700);white-space:nowrap}
+  td b{color:var(--neutral-900)}
+  .row{display:grid;grid-template-columns:340px minmax(0,1fr);gap:28px;align-items:start;margin:8px 0 4px}
+  @media(max-width:860px){.row{grid-template-columns:1fr}}
+  .spec{position:relative;background:var(--neutral-50);border:1px dashed var(--neutral-300);border-radius:8px;padding:16px 18px}
+  .spec::before{content:"Specification";display:block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--neutral-400);margin-bottom:12px}
+  .spec table{margin:0}
+  .spec td{padding:7px 4px;border-bottom:1px solid var(--neutral-200);font-size:13px}
+  .spec td:first-child{color:var(--neutral-500);width:96px}
+  .spec td:last-child{font-family:var(--mono);font-size:12px}
+  .spec tr:last-child td{border-bottom:0}
+  .demoStage{background:var(--app-bg);border:1px dashed var(--neutral-200);border-radius:12px;padding:24px;margin-bottom:12px}
+  .fig{margin:0}
+  .fig img{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--neutral-200);box-shadow:var(--elev-s)}
+  .fig figcaption{font-size:12px;color:var(--neutral-500);margin-top:7px}
+  .fig figcaption b{color:var(--green-700)}
+  .fig figcaption.mock b{color:#8c660a}
+  ul{margin:8px 0;padding-left:20px}li{margin:5px 0}
+  .exlist{font-size:14px;color:var(--neutral-700);margin-top:12px}
+  .exlist b{color:var(--neutral-900)}
+  .note{font-size:12.5px;color:var(--neutral-500)}
+  hr{border:0;border-top:1px solid var(--neutral-100);margin:40px 0}
+  .foot{margin-top:44px;font-size:12.5px;color:var(--neutral-400);text-align:center}
+  .measure{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--neutral-600);margin-top:4px}
+  .measure span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  /* ---- renders reproduced from the actual component code ---- */
+  .m{font-family:var(--sans)}
+  /* Primary — app-standard card: rounded-2xl(16), p-6(24), app shadow */
+  .c-pri{background:#fff;border-radius:16px;box-shadow:var(--elev-app);padding:24px;display:flex;flex-direction:column;gap:16px}
+  /* Large — ML panel: rounded-2xl(16), border, p-4(16), gap-4(16) */
+  .c-L{background:#fff;border:1px solid var(--neutral-100);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:16px}
+  /* Medium — Evals score tile: rounded-xl(12), border, p-3(12), gap-1(4) */
+  .c-M{background:#fff;border:1px solid var(--neutral-100);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:4px;justify-content:space-between;min-width:200px}
+  /* Small — improvement-suggestion row: rounded-lg(8), border, p-2(8), gap-2(8) */
+  .c-S{background:#fff;border:1px solid var(--neutral-100);border-radius:8px;padding:8px;display:flex;align-items:flex-start;gap:8px}
+  .ttl{font-size:18px;font-weight:700;color:var(--neutral-900)}
+  .ttl-sm{font-size:16px;font-weight:700;color:var(--neutral-900)}
+  .slot{border:1px dashed var(--neutral-200);border-radius:8px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--neutral-400);font-size:12px}
+  /* score tile internals — text-xs/6 label, text-2xl value, h-1 bar */
+  .sc-lab{font-size:12px;line-height:24px;font-weight:600;color:var(--neutral-500)}
+  .sc-val{font-size:24px;font-weight:700;line-height:1.1}
+  .sc-bar{height:4px;border-radius:999px;background:var(--neutral-100);overflow:hidden}
+  .sc-bar i{display:block;height:100%;background:var(--green-500)}
+  /* suggestion row internals — text-base icon, text-xs body */
+  .sug-ico{color:var(--yellow-500);flex:0 0 auto;width:16px;height:16px;margin-top:2px}
+  .sug-txt{font-size:12px;line-height:18px;color:var(--neutral-500);margin:0}
+  .sug-txt b{color:var(--neutral-900)}
+  /* page-title (Primary) internals — reproduced from the Evals page header */
+  .pt-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .pt-left{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .pt-title{font-size:24px;font-weight:700;line-height:1.2;color:var(--neutral-900)}
+  .pt-desc{font-size:14px;line-height:1.5;color:var(--neutral-500)}
+  .ds-btn{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;height:36px;padding:6px 12px;border-radius:8px;background:#fff;border:1px solid var(--neutral-100);color:var(--blue-500);font-family:var(--sans);font-size:14px;font-weight:600;line-height:24px;white-space:nowrap;cursor:default}
+  .ds-btn svg{width:18px;height:18px;color:var(--neutral-900);flex:0 0 auto}
+  /* training-distribution (Large) internals — reproduced from ml-version-panel */
+  .td-head{display:flex;flex-direction:column;gap:2px}
+  .td-sub{font-size:12px;line-height:16px;color:var(--neutral-500)}
+  .td-list{display:flex;flex-direction:column;gap:12px}
+  .td-row{display:flex;align-items:center;gap:12px}
+  .td-label{width:160px;flex:0 0 auto;font-size:12px;line-height:16px;color:var(--neutral-600);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .td-track{position:relative;flex:1 1 auto;height:12px;border-radius:999px;background:var(--neutral-100);overflow:hidden;min-width:0}
+  .td-fill{position:absolute;inset:0 auto 0 0;height:100%;border-radius:999px;background:var(--blue-400)}
+  .td-val{flex:0 0 auto;min-width:72px;text-align:right;font-size:12px;color:var(--neutral-500);font-variant-numeric:tabular-nums}
+  .td-pct{color:var(--neutral-400)}
+  /* "How it tested" (Primary section card) internals — reproduced from ml-matrix-summary */
+  .ht-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .ht-title{font-size:16px;font-weight:700;color:var(--neutral-900)}
+  .ht-right{display:flex;align-items:center;gap:20px}
+  .ht-counts{display:flex;gap:20px;font-size:12px}
+  .ht-correct{font-weight:600;color:var(--green-700)}
+  .ht-miss{font-weight:600;color:var(--red-600)}
+  .ht-score{font-size:24px;font-weight:700;line-height:1;color:var(--neutral-900);font-variant-numeric:tabular-nums}
+  .ht-bar{display:flex;height:8px;overflow:hidden;border-radius:999px;background:var(--neutral-100)}
+  .ht-bar>.g{background:var(--green-500)}
+  .ht-bar>.r{flex:1 1 auto;background:var(--red-500)}
+  .ht-pc{display:flex;flex-direction:column;gap:10px}
+  .ht-pclabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--neutral-400)}
+  .ht-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .ht-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--neutral-100);background:var(--neutral-50);border-radius:999px;padding:4px 12px;font-size:12px}
+  .ht-dot{width:6px;height:6px;border-radius:999px;flex:0 0 auto}
+  .ht-cl{font-weight:600;color:var(--neutral-800)}
+  .ht-val{font-weight:700;font-variant-numeric:tabular-nums}
+  .tone-ok{color:var(--green-700)} .dot-ok{background:var(--green-500)}
+  .tone-warn{color:var(--orange-700)} .dot-warn{background:var(--orange-500)}
+  .tone-bad{color:var(--red-600)} .dot-bad{background:var(--red-500)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>FlowX Card System</h1>
+  <p>The card model for the designer, distilled to two families and a size scale. Primary cards carry a page's structure; Secondary cards group content inside them. Every card shares a 16px radius — the difference is shadow-vs-border and the padding/gap step.</p>
+  <div class="meta">
+    <span class="chip">2 families · Primary / Secondary</span>
+    <span class="chip">3 secondary sizes · L / M / S</span>
+    <span class="chip">radius 16 everywhere</span>
+    <span class="chip">Open Sans · FlowX tokens</span>
+  </div>
+</header>
+
+<h2>The model at a glance</h2>
+<p class="lead">A card is <b>Primary</b> or <b>Secondary</b>. Primary floats on the page (shadow); Secondary is grouped inside (border). All cards use a <b>16px corner radius</b>.</p>
+<div class="scroll"><table>
+<thead><tr><th>property</th><th>Primary</th><th>Secondary · Large</th><th>Secondary · Medium</th><th>Secondary · Small</th></tr></thead>
+<tbody>
+<tr><td><b>Surface</b></td><td>White</td><td>Transparent / white</td><td>Transparent / white</td><td>Transparent / white</td></tr>
+<tr><td><b>Elevation</b></td><td>Shadow</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><b>Border</b></td><td>—</td><td>1px <code>neutral-100</code></td><td>1px <code>neutral-100</code></td><td>1px <code>neutral-100</code></td></tr>
+<tr><td><b>Radius</b></td><td>16</td><td>16</td><td>16</td><td>16</td></tr>
+<tr><td><b>Padding</b></td><td><b>24</b></td><td><b>24</b></td><td><b>16</b></td><td><b>8</b></td></tr>
+<tr><td><b>Gap</b></td><td><b>16</b></td><td><b>16</b></td><td><b>8</b></td><td><b>4</b></td></tr>
+</tbody></table></div>
+<p class="note">Padding is applied equally on both axes. Gap is the default spacing between a card's stacked children.</p>
+<p class="note">The table above is the <b>target</b>. Each example below is the <b>actual component reproduced from code</b> — several don't match the target yet (radius 12/8 instead of 16, off-step gaps). Those gaps are the normalization work this spec defines.</p>
+
+<hr/>
+
+<!-- ===================== PRIMARY ===================== -->
+<h2><span class="badge b-pri">Primary</span> &nbsp;Cards that structure a page</h2>
+<p>White surface, drop shadow, no border. <b>Always 24px padding</b> (both axes) and a <b>16px gap</b>. They sit directly on the grey page background and hold everything else.</p>
+
+<h3>Spec &amp; live render</h3>
+<div class="row">
+  <div class="spec">
+    <table>
+      <tr><td>Surface</td><td><b>White</b></td></tr>
+      <tr><td>Elevation</td><td><b>Shadow</b> <code>2px 2px 24px rgba(22,52,98,.08)</code></td></tr>
+      <tr><td>Border</td><td>none</td></tr>
+      <tr><td>Radius</td><td><b>16px</b></td></tr>
+      <tr><td>Padding</td><td><b>24px</b> · both axes</td></tr>
+      <tr><td>Gap</td><td><b>16px</b></td></tr>
+    </table>
+    <div class="measure"><span><i class="dot" style="background:var(--white);border:1px solid var(--neutral-200)"></i>white + shadow</span><span><i class="dot" style="background:var(--app-bg);border:1px solid var(--neutral-200)"></i>on app-bg</span></div>
+  </div>
+  <div>
+    <div class="demoStage">
+      <div class="c-pri m" style="max-width:640px">
+        <div class="pt-head">
+          <div class="pt-left">
+            <div class="pt-title">Evals</div>
+            <div class="pt-desc">Run evaluations on your AI nodes, manage test datasets, and configure evaluator scorers to measure prompt quality across prompt versions.</div>
+          </div>
+          <button class="ds-btn" type="button">
+            <svg viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88 88.1 88.1 0 0 1-88 88Zm16-40a8 8 0 0 1-8 8 16 16 0 0 1-16-16v-40a8 8 0 0 1 0-16 16 16 0 0 1 16 16v40a8 8 0 0 1 8 8ZM112 84a12 12 0 1 1 12 12 12 12 0 0 1-12-12Z"/></svg>
+            <span>How Evals work</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="demoStage">
+      <div class="c-pri m" style="max-width:640px">
+        <div class="ht-head">
+          <div class="ht-title">How it tested</div>
+          <div class="ht-right">
+            <div class="ht-counts">
+              <span class="ht-correct">141 correct</span>
+              <span class="ht-miss">9 misclassified</span>
+            </div>
+            <span class="ht-score">94%</span>
+          </div>
+        </div>
+        <div class="ht-bar"><div class="g" style="width:94%"></div><div class="r"></div></div>
+        <div class="ht-pc">
+          <div class="ht-pclabel">Per-class accuracy</div>
+          <div class="ht-chips">
+            <span class="ht-chip"><span class="ht-dot dot-ok"></span><span class="ht-cl">PASSPORT</span><span class="ht-val tone-ok">97%</span></span>
+            <span class="ht-chip"><span class="ht-dot dot-ok"></span><span class="ht-cl">NATIONAL_ID</span><span class="ht-val tone-ok">95%</span></span>
+            <span class="ht-chip"><span class="ht-dot dot-ok"></span><span class="ht-cl">DRIVERS_LICENSE</span><span class="ht-val tone-ok">91%</span></span>
+            <span class="ht-chip"><span class="ht-dot dot-warn"></span><span class="ht-cl">RESIDENCE_PERMIT</span><span class="ht-val tone-warn">83%</span></span>
+            <span class="ht-chip"><span class="ht-dot dot-bad"></span><span class="ht-cl">REFUGEE_TRAVEL_DOC</span><span class="ht-val tone-bad">72%</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<!-- ===================== SECONDARY ===================== -->
+<h2><span class="badge b-sec">Secondary</span> &nbsp;Cards that group content inside a Primary</h2>
+<p><code>neutral-100</code> 1px border, <b>no shadow</b>, 16px radius. They come in three sizes — the only difference is padding and gap.</p>
+
+<!-- LARGE -->
+<h3><span class="badge b-L">Large</span> padding 24 · gap 16</h3>
+<div class="row">
+  <div class="spec">
+    <table>
+      <tr><td>Border</td><td>1px <code>neutral-100</code></td></tr>
+      <tr><td>Shadow</td><td>none</td></tr>
+      <tr><td>Radius</td><td><b>16px</b></td></tr>
+      <tr><td>Padding</td><td><b>24px</b></td></tr>
+      <tr><td>Gap</td><td><b>16px</b></td></tr>
+    </table>
+    <div class="exlist">
+      <b>Examples</b>
+      <ul>
+        <li>Confusion matrix / Training distribution subsections</li>
+        <li>Protocol / Authorization / General settings subsections in an external file-storage data source</li>
+        <li>Evaluators / scorers in the Eval Definitions tab</li>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <div class="demoStage">
+      <div class="c-L m" style="max-width:480px">
+        <div class="td-head">
+          <div class="ttl-sm">Training distribution</div>
+          <div class="td-sub">Share of the pages this model trained on, per class. The never-trained UNKNOWN catch-all is excluded.</div>
+        </div>
+        <div class="td-list">
+          <div class="td-row">
+            <span class="td-label" title="PASSPORT">PASSPORT</span>
+            <div class="td-track"><i class="td-fill" style="width:34.2%"></i></div>
+            <span class="td-val">142&nbsp;<span class="td-pct">(34.2%)</span></span>
+          </div>
+          <div class="td-row">
+            <span class="td-label" title="NATIONAL_ID">NATIONAL_ID</span>
+            <div class="td-track"><i class="td-fill" style="width:28.4%"></i></div>
+            <span class="td-val">118&nbsp;<span class="td-pct">(28.4%)</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MEDIUM -->
+<h3><span class="badge b-M">Medium</span> padding 16 · gap 8</h3>
+<div class="row">
+  <div class="spec">
+    <table>
+      <tr><td>Border</td><td>1px <code>neutral-100</code></td></tr>
+      <tr><td>Shadow</td><td>none</td></tr>
+      <tr><td>Radius</td><td><b>16px</b></td></tr>
+      <tr><td>Padding</td><td><b>16px</b></td></tr>
+      <tr><td>Gap</td><td><b>8px</b></td></tr>
+    </table>
+    <div class="exlist">
+      <b>Examples</b>
+      <ul>
+        <li>Score cards (label + percentage + progress bar) inside the experiment report when comparing two experiments in Evals</li>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <div class="demoStage">
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div class="c-M m"><div class="sc-lab">Correctness</div><div style="display:flex;flex-direction:column;gap:4px"><span class="sc-val" style="color:var(--green-700)">92%</span><div class="sc-bar"><i style="width:92%"></i></div></div></div>
+        <div class="c-M m"><div class="sc-lab">Coherence / fluency</div><div style="display:flex;flex-direction:column;gap:4px"><span class="sc-val" style="color:var(--green-700)">85%</span><div class="sc-bar"><i style="width:85%"></i></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SMALL -->
+<h3><span class="badge b-S">Small</span> padding 8 · gap 4</h3>
+<div class="row">
+  <div class="spec">
+    <table>
+      <tr><td>Border</td><td>1px <code>neutral-100</code></td></tr>
+      <tr><td>Shadow</td><td>none</td></tr>
+      <tr><td>Radius</td><td><b>16px</b></td></tr>
+      <tr><td>Padding</td><td><b>8px</b></td></tr>
+      <tr><td>Gap</td><td><b>4px</b></td></tr>
+    </table>
+    <div class="exlist">
+      <b>Examples</b>
+      <ul>
+        <li>Improvement Suggestions rows on the experiment page</li>
+      </ul>
+    </div>
+  </div>
+  <div>
+    <div class="demoStage">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:560px">
+        <div class="c-S m"><svg class="sug-ico" viewBox="0 0 1024 1024" aria-hidden="true"><path fill="currentColor" d="M863.16 472.68c-2.544-10.512-10.020-18.858-19.78-22.567l-0.22-0.073-230.44-86.44 58.64-293.32c0.376-1.84 0.591-3.955 0.591-6.12 0-17.673-14.327-32-32-32-9.202 0-17.497 3.884-23.335 10.103l-0.016 0.017-448 480c-5.442 5.725-8.789 13.486-8.789 22.028 0 13.646 8.541 25.297 20.569 29.898l0.219 0.074 230.52 86.44-58.48 293c-0.376 1.84-0.591 3.955-0.591 6.12 0 17.673 14.327 32 32 32 9.202 0 17.497-3.884 23.335-10.103l0.016-0.017 448-480c5.32-5.699 8.587-13.375 8.587-21.813 0-2.563-0.301-5.056-0.87-7.444l0.044 0.218zM437.48 856l41.88-209.52c0.402-1.902 0.632-4.088 0.632-6.327 0-13.587-8.468-25.196-20.414-29.838l-0.218-0.075-211.36-79.4 338.48-362.64-41.84 209.52c-0.402 1.902-0.632 4.088-0.632 6.327 0 13.587 8.468 25.196 20.414 29.838l0.218 0.075 211.2 79.2z"/></svg><p class="sug-txt"><b>Correctness</b> — Structure the prompt with explicit sections (Instructions, Format, Examples) so the model answers in order.</p></div>
+        <div class="c-S m"><svg class="sug-ico" viewBox="0 0 1024 1024" aria-hidden="true"><path fill="currentColor" d="M863.16 472.68c-2.544-10.512-10.020-18.858-19.78-22.567l-0.22-0.073-230.44-86.44 58.64-293.32c0.376-1.84 0.591-3.955 0.591-6.12 0-17.673-14.327-32-32-32-9.202 0-17.497 3.884-23.335 10.103l-0.016 0.017-448 480c-5.442 5.725-8.789 13.486-8.789 22.028 0 13.646 8.541 25.297 20.569 29.898l0.219 0.074 230.52 86.44-58.48 293c-0.376 1.84-0.591 3.955-0.591 6.12 0 17.673 14.327 32 32 32 9.202 0 17.497-3.884 23.335-10.103l0.016-0.017 448-480c5.32-5.699 8.587-13.375 8.587-21.813 0-2.563-0.301-5.056-0.87-7.444l0.044 0.218zM437.48 856l41.88-209.52c0.402-1.902 0.632-4.088 0.632-6.327 0-13.587-8.468-25.196-20.414-29.838l-0.218-0.075-211.36-79.4 338.48-362.64-41.84 209.52c-0.402 1.902-0.632 4.088-0.632 6.327 0 13.587 8.468 25.196 20.414 29.838l0.218 0.075 211.2 79.2z"/></svg><p class="sug-txt"><b>Helpfulness</b> — Sharpen the role/persona in the prompt and specify the desired level of detail.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr/>
+
+<h2>One-line summary</h2>
+<div class="rules">
+  <ul style="margin:0">
+    <li><b>Primary</b> = white + shadow, no border · padding <b>24</b> · gap <b>16</b>.</li>
+    <li><b>Secondary</b> = <code>neutral-100</code> border, no shadow · sizes <b>L</b> (24/16), <b>M</b> (16/8), <b>S</b> (8/4).</li>
+    <li><b>Every</b> card: 16px radius. Primary structures the page; Secondary groups content inside a Primary.</li>
+  </ul>
+</div>
+
+<p class="foot">FlowX Card System — conclusions. Primary/Secondary model and L/M/S size scale. Every example is a live render reproduced from the actual component code (ML Models and Evals).</p>
+
+</div>
+</body>
+</html>
