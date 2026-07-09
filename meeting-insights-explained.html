@@ -491,10 +491,11 @@
       </div>
       <div class="type">
         <span class="badge" style="background:var(--amber-bg);color:var(--amber)">You do this yourself</span>
-        <h3 class="mini">Two things Claude can't do for you</h3>
+        <h3 class="mini">A few things Claude can't do for you</h3>
         <ul style="margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:var(--ink-soft)">
           <li>Get a <b>Gemini API key</b> and export it as <code>GEMINI_API_KEY</code> — it's tied to your own account, so Claude can't generate it for you.</li>
           <li>Run <code>gh auth login</code> once — only needed to publish a report to the shared sessions site. It's an interactive login only you can complete.</li>
+          <li>For voice fingerprinting (the acoustic speaker pass): get a free <b>Hugging Face token</b>, accept the gated <code>pyannote</code> model terms on huggingface.co, and export it as <code>HF_TOKEN</code>. Only needed if that pass is used — plain transcription doesn't need it.</li>
         </ul>
       </div>
     </div>
