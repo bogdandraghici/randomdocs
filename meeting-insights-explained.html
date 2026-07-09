@@ -52,7 +52,7 @@
     mix-blend-mode:multiply;
   }
   .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 24px}
-  .read{max-width:var(--readw)}
+  .read{max-width:100%}
   a{color:var(--clay)}
 
   /* ---------- type ---------- */
@@ -478,12 +478,25 @@
       <div><span class="tag">Setup</span><h2>Installing it</h2></div>
     </div>
     <div>
-      <p>Installed like any other FlowX skill: find it under <strong>/plugins</strong> in the FlowX marketplace and install from there.</p>
+      <p>Installed like any other FlowX skill: find it under <strong>/plugins</strong> in the FlowX marketplace and install from there. Once it's installed, just ask Claude to run it — Claude handles most of the first-time setup itself.</p>
     </div>
-    <div class="grid3" style="margin-top:22px">
-      <div class="box"><h3 class="mini">ffmpeg on PATH</h3><p>Only needed to transcribe a raw recording or pull screen frames — skip if you already have a transcript. <code>brew install ffmpeg</code> if missing.</p></div>
-      <div class="box"><h3 class="mini">A Gemini API key</h3><p>Export it as <code>GEMINI_API_KEY</code> — used to turn a recording into a transcript.</p></div>
-      <div class="box"><h3 class="mini"><code>gh</code> CLI, signed in</h3><p>Only needed to publish a report to the shared sessions site — <code>gh auth login</code> once if not already signed in.</p></div>
+    <div class="types" style="margin-top:26px">
+      <div class="type">
+        <span class="badge" style="background:var(--green-bg);color:var(--green)">Claude sets this up</span>
+        <h3 class="mini">Ask Claude to run it — it handles this</h3>
+        <ul style="margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:var(--ink-soft)">
+          <li><b>ffmpeg</b> — installed with <code>brew install ffmpeg</code> if it's missing. Only needed to transcribe a raw recording or pull screen frames.</li>
+          <li>The transcription library — installs itself into a local <code>.venv</code> the first time it runs.</li>
+        </ul>
+      </div>
+      <div class="type">
+        <span class="badge" style="background:var(--amber-bg);color:var(--amber)">You do this yourself</span>
+        <h3 class="mini">Two things Claude can't do for you</h3>
+        <ul style="margin:10px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:14.5px;color:var(--ink-soft)">
+          <li>Get a <b>Gemini API key</b> and export it as <code>GEMINI_API_KEY</code> — it's tied to your own account, so Claude can't generate it for you.</li>
+          <li>Run <code>gh auth login</code> once — only needed to publish a report to the shared sessions site. It's an interactive login only you can complete.</li>
+        </ul>
+      </div>
     </div>
   </section>
 
