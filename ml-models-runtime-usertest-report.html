@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Models in Runtime — Unified User-Testing Report</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --surface:#ffffff; --ink:#1c1d22; --muted:#5f6470; --faint:#8b909c;
+    --line:#e6e6e2; --line2:#eeeeeb;
+    --accent:#4b48d6; --accent-soft:#eceafc;
+    --green:#0e8a5f; --green-soft:#e4f4ec;
+    --amber:#b7791f; --amber-soft:#fbf1dd;
+    --red:#c0392b; --red-soft:#fbe9e6;
+    --blue:#2563a8; --blue-soft:#e7f0fa;
+    --shadow:0 1px 2px rgba(20,20,30,.04),0 8px 24px rgba(20,20,30,.05);
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0f1013; --surface:#17181c; --ink:#e9eaee; --muted:#a2a7b3; --faint:#767c88;
+      --line:#26282e; --line2:#202228;
+      --accent:#8f8df0; --accent-soft:#20203a;
+      --green:#4cc48c; --green-soft:#13251d;
+      --amber:#e0b25a; --amber-soft:#2a2312;
+      --red:#e88a7d; --red-soft:#2c1917;
+      --blue:#6faae8; --blue-soft:#12212f;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .wrap{max-width:880px;margin:0 auto;padding:0 22px}
+
+  /* ---- masthead ---- */
+  header.mast{padding:64px 0 30px;border-bottom:1px solid var(--line)}
+  .kicker{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:2.35rem;line-height:1.12;margin:.42em 0 .3em;letter-spacing:-.02em;font-weight:800}
+  .lede{font-size:1.16rem;color:var(--muted);margin:0;max-width:60ch}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:22px}
+  .chip{font-size:12.5px;color:var(--muted);background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:5px 12px;font-weight:500}
+  .chip b{color:var(--ink);font-weight:700}
+
+  /* ---- nav ---- */
+  nav.toc{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin-bottom:38px}
+  nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:9px;padding-bottom:9px;scrollbar-width:none}
+  nav.toc .wrap::-webkit-scrollbar{display:none}
+  nav.toc a{white-space:nowrap;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 11px;
+    border-radius:8px;font-weight:600}
+  nav.toc a:hover{color:var(--ink);background:var(--surface)}
+
+  section{margin:0 0 52px;scroll-margin-top:64px}
+  h2{font-size:1.5rem;letter-spacing:-.01em;margin:0 0 6px;font-weight:800}
+  h2 .n{color:var(--faint);font-weight:700;margin-right:.5em;font-variant-numeric:tabular-nums}
+  .sub{color:var(--muted);margin:0 0 22px;font-size:1rem}
+  h3{font-size:1.06rem;margin:26px 0 8px;font-weight:700}
+  p{margin:0 0 14px}
+  a{color:var(--accent)}
+
+  /* ---- stat row ---- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px 0 2px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;box-shadow:var(--shadow)}
+  .stat .big{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;line-height:1}
+  .stat .lbl{font-size:12.5px;color:var(--muted);margin-top:6px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---- callout / verdict ---- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)}
+  .verdict{border-left:4px solid var(--accent)}
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:680px){.cols2{grid-template-columns:1fr}}
+  .mini-h{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--faint);margin:0 0 10px}
+  ul.tight{margin:0;padding-left:19px}
+  ul.tight li{margin:0 0 8px}
+  ul.tight li::marker{color:var(--accent)}
+
+  /* ---- tables ---- */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;background:var(--surface);min-width:560px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line2);vertical-align:top}
+  thead th{background:color-mix(in srgb,var(--surface) 60%,var(--bg));font-size:12px;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted);font-weight:700;position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  td b{font-weight:700}
+  .who{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+
+  /* ---- badges ---- */
+  .b{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;line-height:1.5;white-space:nowrap}
+  .b.p1{background:var(--red-soft);color:var(--red)}
+  .b.p2{background:var(--amber-soft);color:var(--amber)}
+  .b.p3{background:var(--blue-soft);color:var(--blue)}
+  .b.win{background:var(--green-soft);color:var(--green)}
+  .b.all{background:var(--accent-soft);color:var(--accent)}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:6px;background:var(--line2);color:var(--muted);margin:0 4px 4px 0}
+
+  .agree{color:var(--green);font-weight:700}
+  .split{color:var(--amber);font-weight:700}
+
+  /* ---- quotes ---- */
+  .q{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:0 12px 12px 0;padding:14px 18px;margin:0 0 14px}
+  .q .ro{font-style:italic;color:var(--ink)}
+  .q .en{display:block;color:var(--muted);font-size:14px;margin-top:6px}
+  .q .attr{display:block;margin-top:8px;font-size:12.5px;color:var(--faint);font-weight:600}
+
+  .theme{border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 14px;background:var(--surface);box-shadow:var(--shadow)}
+  .theme h3{margin-top:0}
+  .theme .pills{margin:2px 0 12px}
+
+  footer{border-top:1px solid var(--line);margin-top:20px;padding:26px 0 60px;color:var(--faint);font-size:13px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:14px 0 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  hr.soft{border:none;border-top:1px solid var(--line2);margin:26px 0}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="kicker">FlowX · User-Testing Synthesis</div>
+    <h1>ML Models in Runtime</h1>
+    <p class="lede">A unified report across three usability sessions on the runtime model-lifecycle experience — classification review, retraining, LLM assist, and promotion.</p>
+    <div class="meta">
+      <span class="chip"><b>3</b> sessions</span>
+      <span class="chip"><b>3</b> participants (configurators)</span>
+      <span class="chip"><b>54</b> insight cards synthesized</span>
+      <span class="chip">Jul 10–13, <b>2026</b></span>
+      <span class="chip">Facilitators: Ana (PM), Bogdan (Design)</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#tldr">Summary</a>
+    <a href="#method">Method &amp; caveats</a>
+    <a href="#matrix">Convergence matrix</a>
+    <a href="#themes">Themes</a>
+    <a href="#wins">Validated</a>
+    <a href="#backlog">Issue backlog</a>
+    <a href="#mental">Mental models</a>
+    <a href="#requests">Requests</a>
+    <a href="#open">Open questions</a>
+    <a href="#quotes">Quotes</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- ============ SUMMARY ============ -->
+  <section id="tldr">
+    <h2><span class="n">01</span>Executive summary</h2>
+    <p class="sub">Same feature, three configurators, remarkably consistent verdict.</p>
+
+    <div class="card verdict" style="margin-bottom:18px">
+      <p style="margin:0"><strong>Verdict:</strong> The runtime ML-models experience is fundamentally sound and well-received — all three testers navigated it largely unaided, built accurate mental models of the review → correct → corpus → retrain loop, and rated the tooling <em>useful and realistic</em>. The friction is concentrated in <strong>discoverability and copy</strong>, not structure: users reach the right screens but can't always tell <em>why</em> an item is there, <em>what</em> a number means, or that a control is theirs to change. Two genuine design tensions (threshold ownership, LLM role) need a product decision rather than a copy tweak.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="big">3/3</div><div class="lbl">went to <b>Runtime</b>, not Config</div></div>
+      <div class="stat"><div class="big">3/3</div><div class="lbl">grasped the retrain loop</div></div>
+      <div class="stat"><div class="big" style="color:var(--green)">7</div><div class="lbl">validated design decisions</div></div>
+      <div class="stat"><div class="big" style="color:var(--red)">3</div><div class="lbl">P1 issues to fix</div></div>
+    </div>
+
+    <div class="cols2" style="margin-top:20px">
+      <div class="card">
+        <p class="mini-h" style="color:var(--green)">What's working</p>
+        <ul class="tight">
+          <li><b>Runtime placement</b> matches everyone's instinct — none looked in Config.</li>
+          <li>The <b>"candidates" → "models"</b> rename was a unanimous relief; the old label had actively confused testers.</li>
+          <li>The <b>correct → corpus → retrain</b> loop is self-explaining.</li>
+          <li>The <b>LLM daily budget cap</b> read as a genuine safety feature.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="mini-h" style="color:var(--red)">What's hurting</p>
+        <ul class="tight">
+          <li><b>Review-queue entry criteria</b> are buried — the single most-confusing thing for one tester.</li>
+          <li><b>Batch names</b> feel system-owned and go unnoticed, yet they're the key to slicing data.</li>
+          <li><b>What the LLM actually does</b> (pre-classify vs. judge) is ambiguous — and drives cost fear.</li>
+          <li>Unlabeled numbers (<b>"100%"</b>, "used by 4 builds") leave users guessing.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section id="method">
+    <h2><span class="n">02</span>Method &amp; caveats</h2>
+    <p class="sub">Read the findings with these in mind.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Session</th><th>Participant</th><th>Role</th><th>Length</th><th>Insights</th></tr></thead>
+        <tbody>
+          <tr><td>2026-07-10</td><td><b>George</b></td><td>Configurator</td><td>30 min</td><td>15</td></tr>
+          <tr><td>2026-07-13</td><td><b>Delia</b></td><td>Configurator</td><td>33 min</td><td>17</td></tr>
+          <tr><td>2026-07-13</td><td><b>Cătălin</b></td><td>Configurator (VP-project experience)</td><td>45 min</td><td>22</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="tight" style="margin-top:18px">
+      <li><b>Role coverage is narrow.</b> All three testers were configurators. No <em>end-user</em> and no <em>client-annotator</em> was tested — yet the human-in-the-loop debate (who corrects near-identical documents) hinges precisely on those roles. Treat human-in-the-loop findings as hypotheses, not conclusions.</li>
+      <li><b>Prototype artifacts muddied some findings.</b> "Open in run logs" was broken, and the review-list count/select control behaved oddly — both drew comments that may not reflect the intended design. Re-validate on a fixed build.</li>
+      <li><b>Language.</b> Sessions were Romanian-primary with English technical terms; quotes below are verbatim Romanian with an English gloss.</li>
+      <li><b>Facilitation.</b> Several correct readings came only after a prompt ("scroll and compare the LLM vs. ML rows"). Where a finding depended on a nudge, it's noted — unaided comprehension is the higher bar.</li>
+    </ul>
+  </section>
+
+  <!-- ============ MATRIX ============ -->
+  <section id="matrix">
+    <h2><span class="n">03</span>Convergence / divergence matrix</h2>
+    <p class="sub">Where the three independently agreed — and the handful of real splits worth a design decision.</p>
+
+    <h3 style="color:var(--green)">Converged — treat as reliable signal</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:34%">Finding</th><th>George</th><th>Delia</th><th>Cătălin</th><th>Read</th></tr></thead>
+        <tbody>
+          <tr><td><b>Runtime is the home for a live model</b>, not Config</td><td class="agree">✔ direct</td><td class="split">✔ after detour via "data sources"</td><td class="agree">✔ direct</td><td>IA placement validated</td></tr>
+          <tr><td><b>"models" beats "candidates"</b></td><td>—</td><td class="agree">✔ strong</td><td class="agree">✔ strong</td><td>Ship the rename</td></tr>
+          <tr><td><b>Review → correct → corpus → retrain loop</b> is intuitive</td><td class="agree">✔ narrated</td><td class="agree">✔ narrated unprompted</td><td class="agree">✔ used it</td><td>Core flow is sound</td></tr>
+          <tr><td><b>Threshold/settings rules are legible once opened</b></td><td class="agree">✔ from example</td><td class="agree">✔ mostly</td><td class="agree">✔ fully</td><td>Content OK; <em>discoverability</em> is the gap</td></tr>
+          <tr><td><b>Batch names: useful but under-discovered / feel uncontrollable</b></td><td class="split">✔ didn't notice</td><td class="split">✔ assumed fixed</td><td class="split">✔ "didn't catch my eye"</td><td>Raise visibility + signal control</td></tr>
+          <tr><td><b>Review queue is configurator-only</b>; end-users shouldn't classify</td><td>—</td><td class="agree">✔</td><td class="agree">✔</td><td>Keep queue out of the end-user path</td></tr>
+          <tr><td><b>Cost-consciousness of LLM usage matters</b></td><td class="agree">✔ praises cap</td><td class="split">✔ "first 20" feels wasteful</td><td class="agree">✔ cost is the whole point</td><td>Budget controls are on-target</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color:var(--amber)">Diverged — needs a product/design call</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th style="width:26%">Question</th><th>Position A</th><th>Position B</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td><b>Where does the confidence threshold live?</b></td><td><span class="who">George</span> Classifier-level — strictness shouldn't vary by usage</td><td><span class="who">Cătălin</span> Per-node gateway on returned predictions, branch in the workflow</td><td>Prototype copy says "per node default." Likely resolution: classifier-level default + optional per-node override.</td></tr>
+          <tr><td><b>What does the LLM do?</b></td><td><span class="who">George / Delia</span> Pre-classifies queued items to speed review</td><td><span class="who">Cătălin</span> Judges <em>every</em> live ML prediction (safety net)</td><td>Intended = pre-classify (blind to ML, capped). Cătălin's costlier reading drives his cost/latency worry — a copy problem.</td></tr>
+          <tr><td><b>Is "import" self-evident?</b></td><td><span class="who">George</span> Read import + compare + promote correctly</td><td><span class="who">Delia</span> First read "import" as "export"</td><td>Icon/label reinforcement needed.</td></tr>
+          <tr><td><b>Can a configurator correct alone?</b></td><td><span class="who">Delia</span> Yes — end-users shouldn't touch it</td><td><span class="who">Cătălin</span> Near-identical docs (residence permit vs. travel doc) need the uploader to label</td><td>Both true at different volumes; argues for an <em>optional</em> uploader-labeling path.</td></tr>
+          <tr><td><b>Is "first 20 items" the right LLM scope?</b></td><td><span class="who">George</span> Fine, it's a budget</td><td><span class="who">Delia</span> Arbitrary — wants to target low-confidence / a class / a workflow</td><td>Consider manual/targeted triggering on top of the cap.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="agree">✔</span> agreed unaided</span>
+      <span><span class="split">✔</span> agreed with friction / after prompt</span>
+      <span>— not raised in that session</span>
+    </div>
+  </section>
+
+  <!-- ============ THEMES ============ -->
+  <section id="themes">
+    <h2><span class="n">04</span>Insights by theme</h2>
+    <p class="sub">The eight topic clusters that recurred across sessions, synthesized.</p>
+
+    <div class="theme">
+      <h3>Navigation &amp; discoverability</h3>
+      <div class="pills"><span class="tag">Runtime vs Config</span><span class="tag">labels</span><span class="tag">logs</span></div>
+      <p>All three reached ML Models through <b>Runtime</b>, confirming the placement — though Delia's first instinct was "data sources" before she corrected. The section label <b>"runtime content"</b> itself carries no meaning (George oriented by <em>contents</em>, not name). Users expect a <b>runtime log of every tested document and its classification</b> (George), and expect the "view" control to open the <em>workflow config</em> — because that's the behaviour elsewhere — where it actually shows logs (Delia). Returning to a model's detail without triggering a retrain wasn't obvious (Cătălin).</p>
+    </div>
+
+    <div class="theme">
+      <h3>Naming &amp; labels</h3>
+      <div class="pills"><span class="tag">candidates→models</span><span class="tag">import</span><span class="tag">version</span><span class="tag">100%</span></div>
+      <p>The <b>"candidates" → "models"</b> rename is the standout copy win. Remaining snags: the naming <b>hierarchy</b> — an "ML Model" that opens into many inner "models" — reads oddly; Cătălin would call the inner items <b>"versions."</b> A bare <b>"100%"</b> is assumed to be accuracy but isn't labeled. The <b>"critical"</b> class tag is read as an informative degradation warning, but its explanatory copy contradicts itself ("can't be promoted to main," on a model already main). "Import" was misread as "export" by one tester.</p>
+    </div>
+
+    <div class="theme">
+      <h3>Review queue &amp; entry criteria</h3>
+      <div class="pills"><span class="tag">criteria opacity</span><span class="tag">scope</span><span class="tag">corner cases</span></div>
+      <p>The <b>criteria that decide which pages land in the queue</b> were the single most-confusing thing (Delia looked in settings and still couldn't state the rule). Once opened, the settings themselves read correctly. Users built accurate scope models: the queue runs on the <b>whole classifier</b>, not one model (George, self-corrected), and holds <b>corner cases from real client data</b> surfacing after a 100%-in-dev deploy (Cătălin). The fix is <em>surfacing</em> the criteria at the queue, not rewriting them.</p>
+    </div>
+
+    <div class="theme">
+      <h3>Confidence &amp; thresholds</h3>
+      <div class="pills"><span class="tag">&lt;60%</span><span class="tag">top-2 close</span><span class="tag">ownership tension</span></div>
+      <p>Both triggers — score below 60%, and top-two classes within ~10 points — were understood, often from a good worked example (residence permit 73% vs. driver's license 70%). The open design question is <b>where the threshold lives</b>: George argues classifier-level ("you can't be only <em>somewhat</em> sure a doc is an ID"); Cătălin wants it exposed as a <b>workflow gateway</b> so the process branches and never blocks. <span class="b p2" style="vertical-align:baseline">1 finding flagged for follow-up validation</span></p>
+    </div>
+
+    <div class="theme">
+      <h3>LLM assist &amp; budget</h3>
+      <div class="pills"><span class="tag">pre-classify vs judge</span><span class="tag">daily cap</span><span class="tag">trust curve</span></div>
+      <p>The intended behaviour — the LLM <b>pre-classifies queued items blindly (ignoring the ML guess), capped by a daily budget</b> — landed for George and (after a prompt) Delia. Cătălin instead inferred an <b>LLM-as-judge on every call</b>, which fuelled real worries: cost (the ML model exists <em>to cut</em> AI spend), ~20s latency, and false overrides of correct predictions. George praised the <b>budget cap</b> as "a lot of safety." George also described a natural <b>trust curve</b> — verify everything manually first, lean on the LLM as it proves accurate.</p>
+    </div>
+
+    <div class="theme">
+      <h3>Corpus &amp; retraining</h3>
+      <div class="pills"><span class="tag">batch column</span><span class="tag">select only new</span><span class="tag">suggestions</span></div>
+      <p>Reviewed pages feeding the corpus for retraining is well understood and valued ("more variety, closer to production reality"). But <b>isolating just the new / just-reviewed items</b> is hard: there's no "select only new" button, users fall back to filtering by the <b>batch column</b> — which none noticed unaided. Training suggestions aren't equally legible: struck-through <b>"cut"</b> suggestions read instantly, <b>"+add"</b> ones get missed (Cătălin saw 2 of 6). The "149/72 since last training" count also caught users unaware.</p>
+    </div>
+
+    <div class="theme">
+      <h3>Batch names</h3>
+      <div class="pills"><span class="tag">perceived control</span><span class="tag">slicing</span><span class="tag">inline validation</span></div>
+      <p>Every tester treated batch names as <b>system-given defaults</b> they couldn't control ("first added," "most common class," "review Q 13 iulie"). Once prompted, all saw the value: <b>slicing data</b> to include/exclude a set or inspect one document type later. Delia's concrete UX preference for a required batch name: an <b>inline "required" field that turns red</b> and blocks continuing (a modal "felt like more steps"), plus a <b>delete "×"</b> to signal the batch is hers to control.</p>
+    </div>
+
+    <div class="theme">
+      <h3>Human-in-the-loop &amp; end-user impact</h3>
+      <div class="pills"><span class="tag">who corrects</span><span class="tag">end-users out</span><span class="tag">promote flow</span></div>
+      <p>Consensus: the review queue is <b>invisible to and off-limits for end-users</b> — it's the configurator's tool, reached after go-live. The nuance: Cătălin doubts a configurator can correct <b>near-identical documents alone</b> (on the VP project he "went with the guess") and wants the uploading user to label them. On promotion, George expects <b>train → new version → manually select as main</b>, with no build needed and — for himself — no perceived risk, matching FlowX's continuous-improvement story.</p>
+    </div>
+  </section>
+
+  <!-- ============ VALIDATED ============ -->
+  <section id="wins">
+    <h2><span class="n">05</span>Validated decisions — keep as-is</h2>
+    <p class="sub">Confirmed wins. Don't lose these in the noise of the fix list.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Decision</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr><td><span class="b win">KEEP</span> <b>"Models" naming</b> (was "candidates")</td><td>Delia &amp; Cătălin both confused by the old term last time; both relieved now.</td></tr>
+          <tr><td><span class="b win">KEEP</span> <b>ML Models under Runtime</b></td><td>All three navigated there; none expected Config.</td></tr>
+          <tr><td><span class="b win">KEEP</span> <b>Review → correct → corpus → retrain loop</b></td><td>Narrated unprompted by two testers, used correctly by the third.</td></tr>
+          <tr><td><span class="b win">KEEP</span> <b>LLM daily budget cap</b></td><td>"Adds a lot of safety" (George); directly answers Cătălin's cost fear.</td></tr>
+          <tr><td><span class="b win">KEEP</span> <b>Import → compare → promote flow</b></td><td>Read correctly and unprompted by George.</td></tr>
+          <tr><td><span class="b win">KEEP</span> <b>Model overview table</b> (name / classes / builds)</td><td>Delia read it unaided and found the builds count useful. <em>Mild caveat:</em> Cătălin couldn't name a concrete use for "used by 4 builds."</td></tr>
+          <tr><td><span class="b win">KEEP</span> <b>Continuous post-go-live training</b> concept</td><td>"Exactly the continuous-improvement story we sell" (George).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ BACKLOG ============ -->
+  <section id="backlog">
+    <h2><span class="n">06</span>Prioritized issue backlog</h2>
+    <p class="sub">Ranked by severity × how many sessions surfaced it. Each with a recommended direction.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Issue</th><th>Seen by</th><th>Recommended fix</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="b p1">P1</span></td>
+            <td><b>Review-queue entry criteria aren't discoverable</b> — users can't state why items are there.</td>
+            <td class="who">Delia (top), George, Cătălin</td>
+            <td>Surface the active criteria <em>inline on the queue header</em> (e.g. "showing pages &lt;60% confidence, close-call classes, and LLM-flagged"), not only inside the settings modal.</td>
+          </tr>
+          <tr>
+            <td><span class="b p1">P1</span></td>
+            <td><b>Batch names feel system-owned &amp; go unnoticed</b>, blocking the "isolate this batch / only-new" job.</td>
+            <td class="who">All 3</td>
+            <td>Make batch naming visibly editable (input + delete "×"), add a <b>"select only new / this batch"</b> action, and raise the batch column's prominence.</td>
+          </tr>
+          <tr>
+            <td><span class="b p1">P1</span></td>
+            <td><b>LLM role is ambiguous</b> (pre-classify vs. judge), driving cost/latency fear.</td>
+            <td class="who">Cătălin (fear), Delia (slow)</td>
+            <td>State plainly that the LLM <em>pre-classifies queued items, blind to the ML guess, within a daily cap</em> — it does not judge every live call. Reinforce near the "LLM assist" tag.</td>
+          </tr>
+          <tr>
+            <td><span class="b p2">P2</span></td>
+            <td><b>"class" vs "model prediction" columns</b> — unclear which is truth vs. prediction; "reviewed" state unsignalled.</td>
+            <td class="who">Delia, Cătălin</td>
+            <td>Rename to make truth editable / prediction read-only; add a <b>"reviewed class"</b> label &amp; distinct row background; never mark reviewed by default.</td>
+          </tr>
+          <tr>
+            <td><span class="b p2">P2</span></td>
+            <td><b>Naming hierarchy</b>: an "ML Model" that contains many "models."</td>
+            <td class="who">Cătălin</td>
+            <td>Call the inner items <b>"versions."</b></td>
+          </tr>
+          <tr>
+            <td><span class="b p2">P2</span></td>
+            <td><b>Unlabeled numbers</b> — "100%" and "used by 4 builds" leave users guessing.</td>
+            <td class="who">Cătălin</td>
+            <td>Label "100%" as <b>Accuracy</b>; give the builds count a tooltip or drop it if it has no user job.</td>
+          </tr>
+          <tr>
+            <td><span class="b p2">P2</span></td>
+            <td><b>"Import" misread as "export."</b></td>
+            <td class="who">Delia</td>
+            <td>Directional icon + "Import trained model <em>from another project</em>" helper.</td>
+          </tr>
+          <tr>
+            <td><span class="b p2">P2</span></td>
+            <td><b>Accuracy basis unclear</b> — computed on UAT data or the original training set?</td>
+            <td class="who">George</td>
+            <td>Label / tooltip stating exactly what the score is measured on.</td>
+          </tr>
+          <tr>
+            <td><span class="b p3">P3</span></td>
+            <td><b>Training-suggestion legibility</b> — "+add" suggestions get missed vs. struck-through "cut."</td>
+            <td class="who">Cătălin</td>
+            <td>Give "+add" equal visual weight; show the suggestion count.</td>
+          </tr>
+          <tr>
+            <td><span class="b p3">P3</span></td>
+            <td><b>"critical" tag copy contradicts itself</b> ("can't be promoted to main" on a main model).</td>
+            <td class="who">Cătălin</td>
+            <td>Rewrite to describe the degradation, not a false constraint.</td>
+          </tr>
+          <tr>
+            <td><span class="b p3">P3</span></td>
+            <td><b>"view" opens logs, not workflow config</b> — inconsistent with the rest of the product.</td>
+            <td class="who">Delia</td>
+            <td>Align behaviour or relabel the control.</td>
+          </tr>
+          <tr>
+            <td><span class="b p3">P3</span></td>
+            <td><b>Two "Active Policy" rows</b> &amp; weak <b>"runtime content"</b> label.</td>
+            <td class="who">Cătălin, George</td>
+            <td>Explain the duplication; give the section a name that evokes its contents.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ MENTAL MODELS ============ -->
+  <section id="mental">
+    <h2><span class="n">07</span>Mental-model map</h2>
+    <p class="sub">Where users' assumptions matched the intended design — and where the interface must do more work to close the gap.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Aspect</th><th>Intended design</th><th>User assumption</th><th>Gap</th></tr></thead>
+        <tbody>
+          <tr><td><b>LLM assist</b></td><td>Pre-classifies queued items, blind to ML, capped</td><td>Cătălin: judges every live prediction · George/Delia: review help</td><td class="split">Copy implies judging → cost fear</td></tr>
+          <tr><td><b>Review-queue scope</b></td><td>Runs on the whole classifier</td><td>George first thought per-model, self-corrected</td><td class="agree">Minor — self-resolved</td></tr>
+          <tr><td><b>Queue population</b></td><td>Threshold rules + client corner cases</td><td>Cătălin: corner cases (correct); Delia: unsure of rule</td><td class="split">Criteria not surfaced</td></tr>
+          <tr><td><b>Accuracy score basis</b></td><td>(to confirm)</td><td>George: UAT-only, via human review</td><td class="split">Unlabeled — assumption unverified</td></tr>
+          <tr><td><b>Promote flow</b></td><td>Train → version → manual set-main, no build</td><td>George: exactly that</td><td class="agree">Aligned</td></tr>
+          <tr><td><b>Who classifies</b></td><td>Configurator only</td><td>Delia/Cătălin correct; Cătălin wants uploader help</td><td class="split">Role path for annotation missing</td></tr>
+          <tr><td><b>Threshold ownership</b></td><td>Prototype: "per node default"</td><td>George: classifier-level; Cătălin: node gateway</td><td class="split">Unresolved tension</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ REQUESTS ============ -->
+  <section id="requests">
+    <h2><span class="n">08</span>Feature-request backlog</h2>
+    <p class="sub">Net-new asks that emerged, distinct from fixing existing UI.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Request</th><th>From</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td><b>Targeted LLM triggering</b> (manually, by low-confidence / class / workflow)</td><td class="who">Delia</td><td>"First 20" burns budget on easy items; let me aim it.</td></tr>
+          <tr><td><b>Confidence gateway in the workflow</b> — node returns per-class predictions, branch on low confidence, never block</td><td class="who">Cătălin</td><td>Keep it end-to-end; flag "Q for review" and continue. <em>(Ana: the node already returns this list.)</em></td></tr>
+          <tr><td><b>Review-volume alert</b> — email when many items land in review</td><td class="who">Cătălin</td><td>"200 in review — take a look, something may be off."</td></tr>
+          <tr><td><b>"Select only new / this batch"</b> action on the corpus</td><td class="who">Cătălin, George</td><td>Retrain on today's additions without manual tag-filtering.</td></tr>
+          <tr><td><b>Fix + enrich "open in run logs"</b> — shortcut to the workflow instance, with a visual node view</td><td class="who">Cătălin</td><td>Inline console log already saves hunting; finish the jump.</td></tr>
+          <tr><td><b>Uploader labels the document</b> to help the configurator</td><td class="who">Cătălin</td><td>Near-identical doc classes are "almost impossible" to correct alone at first.</td></tr>
+          <tr><td><b>Runtime log of every tested document</b> + how each was classified</td><td class="who">George</td><td>Expects all of them, not a sample.</td></tr>
+          <tr><td><b>Expandable scorecard for non-main models</b></td><td class="who">George</td><td>Same stats he sees on the main model.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ OPEN ============ -->
+  <section id="open">
+    <h2><span class="n">09</span>Open questions &amp; follow-ups</h2>
+    <p class="sub">What this round couldn't settle.</p>
+    <ul class="tight">
+      <li><b>Threshold ownership</b> — classifier-level default vs. per-node override. A product decision, not a usability tweak. <em>(George vs. Cătălin.)</em></li>
+      <li><b>Validate LLM copy unaided</b> — one finding was explicitly flagged for follow-up: confirm users grasp the review-queue triggers <em>without</em> a facilitator's worked example.</li>
+      <li><b>Accuracy basis</b> — decide and label what the score is computed on; George's UAT-only assumption is currently unverified.</li>
+      <li><b>Test the missing roles</b> — run a session with an actual end-user / client-annotator before committing to who corrects near-identical documents.</li>
+      <li><b>Re-test on a fixed prototype</b> — "open in run logs" and the review-list select control were broken; re-confirm affected findings.</li>
+    </ul>
+  </section>
+
+  <!-- ============ QUOTES ============ -->
+  <section id="quotes">
+    <h2><span class="n">10</span>Verbatim quotes appendix</h2>
+    <p class="sub">Representative voice, by theme. Romanian as spoken, with an English gloss.</p>
+
+    <h3>Naming — the "candidates → models" win</h3>
+    <div class="q"><span class="ro">"Mi se pare mai potrivit «modele»… «candidați» era un pic… m-am gândit un pic în ceață."</span>
+      <span class="en">"'Models' fits better… 'candidates' was a bit… I was in a bit of a fog."</span>
+      <span class="attr">Delia</span></div>
+    <div class="q"><span class="ro">"Mai simplu, că data trecută mă încurcam în candidates, nu înțelegeam exact ce este."</span>
+      <span class="en">"Simpler — last time I got tangled up in 'candidates,' didn't get what it was."</span>
+      <span class="attr">Cătălin</span></div>
+
+    <h3>Review-queue criteria — the core friction</h3>
+    <div class="q"><span class="ro">"Poate faza pe partea de — efectiv ce date se aduc aici și criteriile în baza cărora."</span>
+      <span class="en">"Maybe the part about — exactly what data is brought here, and on what criteria."</span>
+      <span class="attr">Delia — asked for the most confusing thing</span></div>
+    <div class="q"><span class="ro">"Astea 15 ar fi corner case-urile găsite în cazurile reale din partea clientului."</span>
+      <span class="en">"Those 15 would be the corner cases found in the client's real cases."</span>
+      <span class="attr">Cătălin — accurate model of the queue</span></div>
+
+    <h3>LLM assist — safety vs. cost</h3>
+    <div class="q"><span class="ro">"Vreau să fac modelul tocmai ca să scot un pic AI-ul, să reduc costul… există posibilitatea să greșească AI-ul, deși modelul a dat predict ok."</span>
+      <span class="en">"I build the model precisely to cut out the AI, reduce cost… and the AI might get it wrong even when the model predicted fine."</span>
+      <span class="attr">Cătălin — the LLM-as-judge cost worry</span></div>
+    <div class="q"><span class="ro">"E foarte potrivită… discutăm de chestii care foarte ușor pot să iasă din mână. Cred că adaugă foarte mult safety."</span>
+      <span class="en">"Very fitting… we're talking about things that easily get out of hand. I think it adds a lot of safety."</span>
+      <span class="attr">George — on the daily budget cap</span></div>
+
+    <h3>Batch names — value, once found</h3>
+    <div class="q"><span class="ro">"Mi se pare interesant lucrul ăsta, doar că nu mi-a sărit în ochi, nu mi-am dat seama de el."</span>
+      <span class="en">"I find this interesting — it just didn't catch my eye, I didn't notice it."</span>
+      <span class="attr">Cătălin</span></div>
+    <div class="q"><span class="ro">"Dacă aș apăsa aici și n-ar fi nimic introdus… astea să se facă roșu… cu modal mi se par mai mulți pași."</span>
+      <span class="en">"If I clicked here with nothing entered… make it turn red… a modal feels like more steps."</span>
+      <span class="attr">Delia — inline validation preference</span></div>
+
+    <h3>Threshold ownership — the split</h3>
+    <div class="q"><span class="ro">"Cred că ar trebui să fie la nivelul resursei, că n-ar trebui să difere de la usage la usage."</span>
+      <span class="en">"I think it should be at the resource level — it shouldn't differ from usage to usage."</span>
+      <span class="attr">George</span></div>
+    <div class="q"><span class="ro">"Să-mi întoarcă un mesaj, dar eu să pot să continui — adică să nu-mi blocheze workflow-ul."</span>
+      <span class="en">"Return me a message, but let me continue — don't block my workflow."</span>
+      <span class="attr">Cătălin — wants a workflow gateway</span></div>
+
+    <h3>Overall sentiment</h3>
+    <div class="q"><span class="ro">"Foarte nice că… poți să iei în continuare datele și să continui training-ul… e fix în direcția cu care ne lăudăm, că facem un continuous improvement."</span>
+      <span class="en">"Very nice that… you can keep pulling the data and continue training… it's exactly the direction we boast about — continuous improvement."</span>
+      <span class="attr">George</span></div>
+    <div class="q"><span class="ro">"Un trigger bazat pe review… să se trimită un mail: «hei, au intrat 200 în review, aruncă și tu un ochi»."</span>
+      <span class="en">"A review-based trigger… send an email: 'hey, 200 landed in review, take a look.'"</span>
+      <span class="attr">Cătălin — rated the tool "pretty strong"</span></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Unified synthesis of three FlowX user-testing sessions on <b>ML Models in Runtime</b> · George (2026-07-10), Delia &amp; Cătălin (2026-07-13) · 54 insight cards · Facilitated by Ana (PM) &amp; Bogdan (Design).
+    Source sessions:
+    <a href="https://bogdandraghici.github.io/Testing/sessions/runtime-ml-models-george-2026-07-10.html">George</a> ·
+    <a href="https://bogdandraghici.github.io/Testing/sessions/ml-models-runtime-delia-2026-07-13.html">Delia</a> ·
+    <a href="https://bogdandraghici.github.io/Testing/sessions/ml-models-runtime-catalin-2026-07-13.html">Cătălin</a>.
+  </div>
+</footer>
+
+</body>
+</html>
