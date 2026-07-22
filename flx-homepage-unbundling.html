@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Un-bundling Banking &amp; Logistics — 3 directions</title>
+<style>
+  :root{
+    --bg:#0B0B0E; --panel:#14141A; --panel2:#191922;
+    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+    --text:#ECECF1; --dim:#A0A0AC; --dim2:#6E6E7A;
+    --accent:#FCB813; --accent-ink:#FCB813;
+    --fs:#6FA1FF; --ins:#45C4A0; --log:#EF6FA3; --flag:#E5574D;
+    --n:rgba(255,255,255,.22);
+    --d:"Sora","Avenir Next","Segoe UI",system-ui,sans-serif;
+    --b:"Geist",-apple-system,"Segoe UI",system-ui,sans-serif;
+    --m:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#F4F3EF; --panel:#FFFFFF; --panel2:#FAF9F6;
+      --line:rgba(20,20,26,.12); --line2:rgba(20,20,26,.22);
+      --text:#1B1B22; --dim:#5C5C66; --dim2:#8B8B94;
+      --accent:#FCB813; --accent-ink:#9A6B00;
+      --fs:#3568D4; --ins:#0F8A6C; --log:#C93A78; --flag:#C2372C;
+      --n:rgba(20,20,26,.28);
+    }
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--b); font-size:15px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .shell{max-width:1080px; margin:0 auto; padding:0 24px}
+
+  /* header */
+  header{padding:52px 0 30px}
+  .eyebrow{
+    font-family:var(--m); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--dim); display:flex; align-items:center; gap:10px; margin:0 0 16px;
+  }
+  .eyebrow::before{content:""; width:8px; height:8px; background:var(--accent)}
+  h1{
+    font-family:var(--d); font-weight:750; font-size:clamp(28px,4.4vw,40px);
+    line-height:1.08; letter-spacing:-.02em; margin:0 0 12px; text-wrap:balance;
+  }
+  h1 .amber{color:var(--accent-ink)}
+  .lede{color:var(--dim); max-width:60ch; margin:0}
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:16px; padding:18px 0 0;
+    font-family:var(--m); font-size:11px; color:var(--dim);
+  }
+  .key{display:flex; align-items:center; gap:6px}
+  .swatch{width:14px; height:8px; border-radius:2px}
+  .sw--fs{background:var(--fs)} .sw--ins{background:var(--ins)} .sw--log{background:var(--log)}
+  .sw--n{background:var(--n)} .sw--new{background:var(--accent)}
+
+  section{padding:36px 0; border-top:1px solid var(--line)}
+  .sec-no{
+    font-family:var(--m); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--dim2); margin:0 0 8px;
+  }
+  h2{
+    font-family:var(--d); font-weight:700; font-size:22px; letter-spacing:-.015em;
+    margin:0 0 18px; text-wrap:balance;
+  }
+
+  /* problem stats */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:0 0 20px}
+  @media (max-width:760px){ .stats{grid-template-columns:repeat(2,1fr)} }
+  .stat{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+  }
+  .stat b{
+    display:block; font-family:var(--d); font-size:24px; font-weight:750;
+    letter-spacing:-.02em; color:var(--flag); font-variant-numeric:tabular-nums;
+  }
+  .stat span{font-size:13px; color:var(--dim); line-height:1.4; display:block; margin-top:3px}
+
+  .problem-row{display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:32px; align-items:start}
+  @media (max-width:760px){ .problem-row{grid-template-columns:1fr} }
+  .verdict{
+    padding:14px 16px; background:var(--panel); border:1px solid var(--line);
+    border-left:3px solid var(--flag); border-radius:0 8px 8px 0; margin:0 0 14px;
+  }
+  .verdict b{font-weight:650}
+  .verdict p{margin:0; color:var(--dim)} .verdict p b{color:var(--text)}
+  .prereq{
+    padding:14px 16px; background:var(--panel); border:1px solid var(--line);
+    border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+  }
+  .prereq p{margin:0; color:var(--dim)} .prereq b{color:var(--text); font-weight:650}
+
+  /* wireframes */
+  .wf{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:10px; display:flex; flex-direction:column; gap:5px;
+  }
+  .wf__title{
+    font-family:var(--m); font-size:10px; color:var(--dim2); letter-spacing:.06em;
+    text-transform:uppercase; padding:2px 2px 7px; border-bottom:1px solid var(--line); margin-bottom:2px;
+  }
+  .wf__blk{
+    background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:6px 8px 7px;
+  }
+  .wf__blk--new{border-color:var(--accent); border-style:dashed}
+  .wf__lab{
+    font-family:var(--m); font-size:9.5px; color:var(--dim);
+    display:flex; justify-content:space-between; gap:6px;
+  }
+  .wf__lab .r{color:var(--dim2); font-size:9px; flex-shrink:0}
+  .wf__lab .r.flag{color:var(--flag)}
+  .wf__lab .r.new{color:var(--accent-ink)}
+  .own{display:flex; gap:2px; margin-top:5px; height:5px}
+  .own i{flex:1; border-radius:2px}
+  .o-fs{background:var(--fs)} .o-ins{background:var(--ins)} .o-log{background:var(--log)}
+  .o-n{background:var(--n)} .o-new{background:var(--accent)}
+
+  .wf__cards{display:flex; gap:4px; margin-top:6px}
+  .wf__card{
+    flex:1; border-radius:5px; padding:4px 5px; border:1px solid;
+    font-family:var(--m); font-size:8.5px; font-weight:600;
+  }
+  .c-fs{border-color:var(--fs); color:var(--fs)}
+  .c-ins{border-color:var(--ins); color:var(--ins)}
+  .c-log{border-color:var(--log); color:var(--log)}
+
+  .wf__tog{
+    display:flex; border:1px solid var(--line2); border-radius:99px; overflow:hidden;
+    margin-top:6px; font-family:var(--m); font-size:8.5px;
+  }
+  .wf__tog span{flex:1; text-align:center; padding:3px 0; color:var(--dim2)}
+  .wf__tog span.on{background:var(--log); color:var(--bg); font-weight:700}
+
+  .wf__zone{border:1px solid; border-radius:8px; padding:6px; display:flex; flex-direction:column; gap:4px}
+  .wf__zone-lab{
+    font-family:var(--m); font-size:8.5px; letter-spacing:.08em; text-transform:uppercase;
+    font-weight:700; padding:0 2px 2px;
+  }
+  .z-fs{border-color:color-mix(in srgb, var(--fs) 55%, transparent)}
+  .z-fs .wf__zone-lab{color:var(--fs)}
+  .z-log{border-color:color-mix(in srgb, var(--log) 55%, transparent)}
+  .z-log .wf__zone-lab{color:var(--log)}
+
+  /* direction cards */
+  .dirs{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  @media (max-width:900px){ .dirs{grid-template-columns:1fr; max-width:420px} }
+  .dir{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px; display:flex; flex-direction:column; gap:14px;
+  }
+  .dir--rec{border-color:var(--accent)}
+  .dir__head .letter{
+    font-family:var(--m); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--dim2); display:block; margin-bottom:4px;
+  }
+  .dir--rec .dir__head .letter{color:var(--accent-ink)}
+  .dir__head h3{
+    font-family:var(--d); font-size:18px; font-weight:700; letter-spacing:-.01em; margin:0;
+  }
+  .dir__head .rec-badge{
+    display:inline-block; margin-top:8px; font-family:var(--m); font-size:10px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--accent-ink);
+    border:1px solid var(--accent); border-radius:4px; padding:2px 8px;
+  }
+  .dir__what{margin:0; color:var(--dim); font-size:14px}
+  .dir__what b{color:var(--text); font-weight:600}
+  .dir .wf{padding:8px; border-radius:10px; background:var(--panel2)}
+  .dir .wf .wf__blk{background:var(--panel)}
+  .chips{display:flex; gap:6px; flex-wrap:wrap}
+  .chip{
+    font-family:var(--m); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+    padding:3px 9px; border-radius:99px; border:1px solid var(--line2); color:var(--dim);
+  }
+  .chip b{font-weight:700}
+  .chip--lo b{color:var(--ins)} .chip--md b{color:var(--accent-ink)} .chip--hi b{color:var(--flag)}
+  .dir__risk{
+    margin:0; padding-top:12px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--dim);
+  }
+  .dir__risk b{color:var(--text); font-weight:600; font-family:var(--m); font-size:10px;
+    letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:3px; color:var(--dim2)}
+
+  /* recommendation */
+  .rec{
+    padding:18px 20px; background:var(--panel); border:1px solid var(--accent); border-radius:12px;
+  }
+  .rec .sec-no{color:var(--accent-ink); margin-bottom:6px}
+  .rec p{margin:0; max-width:74ch}
+  .rec b{font-weight:650}
+
+  footer{padding:26px 0 56px; color:var(--dim2); font-family:var(--m); font-size:11px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <p class="eyebrow">FLX Landing · Homepage strategy · July 2026</p>
+    <h1>Un-bundling Banking &amp; Logistics<span class="amber">.</span></h1>
+    <p class="lede">Three ways to separate the two audiences on the homepage — same URL, no split into separate sites. Scheme for discussion; nothing is implemented.</p>
+    <div class="legend" aria-label="Color legend">
+      <span class="key"><i class="swatch sw--fs"></i>Banking</span>
+      <span class="key"><i class="swatch sw--ins"></i>Insurance</span>
+      <span class="key"><i class="swatch sw--log"></i>Logistics</span>
+      <span class="key"><i class="swatch sw--n"></i>Neutral / shared</span>
+      <span class="key"><i class="swatch sw--new"></i>New or changed</span>
+    </div>
+  </header>
+
+  <!-- ============ PROBLEM ============ -->
+  <section>
+    <p class="sec-no">1 · The problem</p>
+    <h2>The homepage promises three industries, then serves one</h2>
+
+    <div class="stats">
+      <div class="stat"><b>6 / 7</b><span>value streams in the hero are financial services</span></div>
+      <div class="stat"><b>4 / 4</b><span>featured agent stacks read banking / insurance</span></div>
+      <div class="stat"><b>0 / 6</b><span>testimonials come from logistics</span></div>
+      <div class="stat"><b>→ /banking</b><span>where the "Explore Industries" button sends everyone</span></div>
+    </div>
+
+    <div class="problem-row">
+      <div>
+        <div class="verdict">
+          <p><b>It's not 50/50 bundling — it's a financial-services page with logistics stapled to the headline.</b> A logistics buyer is promised in the hero, then abandoned for the rest of the scroll. A banking buyer trips over freight vocabulary in their first screen.</p>
+        </div>
+        <div class="prereq">
+          <p><b>Prerequisite for every direction:</b> logistics needs homepage-grade proof — at least one testimonial and one featured agent stack. The raw material exists (140-agent catalog, full /logistics page).</p>
+        </div>
+      </div>
+
+      <div class="wf" role="img" aria-label="Wireframe of the current homepage: nearly every section is weighted to banking and insurance">
+        <div class="wf__title">Today — flowx.ai/</div>
+        <div class="wf__blk">
+          <div class="wf__lab">hero: "Banking, Insurance &amp; Logistics" <span class="r flag">3-in-1</span></div>
+          <div class="own"><i class="o-fs"></i><i class="o-ins"></i><i class="o-log"></i></div>
+        </div>
+        <div class="wf__blk">
+          <div class="wf__lab">value streams ×7 <span class="r flag">6 FS · 1 LOG</span></div>
+          <div class="own"><i class="o-fs"></i><i class="o-fs"></i><i class="o-ins"></i><i class="o-ins"></i><i class="o-fs"></i><i class="o-fs"></i><i class="o-log"></i></div>
+        </div>
+        <div class="wf__blk">
+          <div class="wf__lab">agent stacks ×4 <span class="r flag">all FS</span></div>
+          <div class="own"><i class="o-fs"></i><i class="o-fs"></i><i class="o-ins"></i><i class="o-fs"></i></div>
+        </div>
+        <div class="wf__blk">
+          <div class="wf__lab">cta "Explore Industries" <span class="r flag">→ /banking</span></div>
+          <div class="own"><i class="o-fs"></i></div>
+        </div>
+        <div class="wf__blk">
+          <div class="wf__lab">testimonials ×6 <span class="r flag">0 logistics</span></div>
+          <div class="own"><i class="o-fs"></i><i class="o-fs"></i><i class="o-fs"></i><i class="o-ins"></i><i class="o-ins"></i><i class="o-n"></i></div>
+        </div>
+        <div class="wf__blk">
+          <div class="wf__lab">"Banking-Grade Safety" · FAQ <span class="r flag">FS copy</span></div>
+          <div class="own"><i class="o-fs"></i><i class="o-n"></i></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DIRECTIONS ============ -->
+  <section>
+    <p class="sec-no">2 · The options</p>
+    <h2>Three directions, side by side</h2>
+
+    <div class="dirs">
+
+      <!-- A -->
+      <article class="dir dir--rec">
+        <div class="dir__head">
+          <span class="letter">Direction A</span>
+          <h3>Route them early</h3>
+          <span class="rec-badge">Recommended now</span>
+        </div>
+        <p class="dir__what">Neutral hero + <b>three industry cards in the first screen</b>. The homepage stops pitching industries and starts routing visitors to their own page.</p>
+        <div class="wf" role="img" aria-label="Wireframe of direction A: neutral hero, industry chooser cards, neutral sections">
+          <div class="wf__title">flowx.ai/</div>
+          <div class="wf__blk wf__blk--new">
+            <div class="wf__lab">hero — neutral copy <span class="r new">rewritten</span></div>
+            <div class="own"><i class="o-n"></i><i class="o-n"></i><i class="o-n"></i></div>
+          </div>
+          <div class="wf__blk wf__blk--new">
+            <div class="wf__lab">pick your industry <span class="r new">new</span></div>
+            <div class="wf__cards">
+              <div class="wf__card c-fs">Banking</div>
+              <div class="wf__card c-ins">Insurance</div>
+              <div class="wf__card c-log">Logistics</div>
+            </div>
+          </div>
+          <div class="wf__blk">
+            <div class="wf__lab">value streams — grouped <span class="r new">re-grouped</span></div>
+            <div class="own"><i class="o-fs"></i><i class="o-fs"></i><i class="o-ins"></i><i class="o-ins"></i><i class="o-log"></i><i class="o-log"></i></div>
+          </div>
+          <div class="wf__blk">
+            <div class="wf__lab">platform · proof — neutral</div>
+            <div class="own"><i class="o-n"></i><i class="o-n"></i><i class="o-n"></i></div>
+          </div>
+          <div class="wf__blk wf__blk--new">
+            <div class="wf__lab">cta → chooser <span class="r new">fixed</span></div>
+            <div class="own"><i class="o-fs"></i><i class="o-ins"></i><i class="o-log"></i></div>
+          </div>
+        </div>
+        <div class="chips">
+          <span class="chip chip--lo">Effort <b>Low</b></span>
+          <span class="chip chip--md">Fix <b>High</b></span>
+          <span class="chip chip--lo">New content <b>Minimal</b></span>
+        </div>
+        <p class="dir__risk"><b>Trade-off</b>The homepage persuades less — the industry pages must close the deal. (Usually the right job split for a multi-vertical homepage.)</p>
+      </article>
+
+      <!-- B -->
+      <article class="dir">
+        <div class="dir__head">
+          <span class="letter">Direction B</span>
+          <h3>One URL, three homepages</h3>
+        </div>
+        <p class="dir__what">A <b>toggle in the hero swaps each section's content</b> per industry — copy, stacks, testimonials. Remembered per visitor, presettable via <code style="font-family:var(--m); font-size:12px">?industry=</code> for ads and nav links.</p>
+        <div class="wf" role="img" aria-label="Wireframe of direction B: hero toggle set to Logistics, every section swapped to the logistics variant">
+          <div class="wf__title">flowx.ai/?industry=Logistics</div>
+          <div class="wf__blk wf__blk--new">
+            <div class="wf__lab">hero + toggle <span class="r new">new</span></div>
+            <div class="wf__tog"><span>Banking</span><span>Insurance</span><span class="on">Logistics</span></div>
+          </div>
+          <div class="wf__blk">
+            <div class="wf__lab">value streams <span class="r new">×3 variants</span></div>
+            <div class="own"><i class="o-log"></i><i class="o-log"></i><i class="o-log"></i><i class="o-log"></i></div>
+          </div>
+          <div class="wf__blk">
+            <div class="wf__lab">agent stacks <span class="r new">×3 variants</span></div>
+            <div class="own"><i class="o-log"></i><i class="o-log"></i><i class="o-log"></i></div>
+          </div>
+          <div class="wf__blk">
+            <div class="wf__lab">testimonials <span class="r new">×3 · missing</span></div>
+            <div class="own"><i class="o-log"></i><i class="o-log"></i></div>
+          </div>
+          <div class="wf__blk">
+            <div class="wf__lab">cta → /logistics</div>
+            <div class="own"><i class="o-log"></i></div>
+          </div>
+        </div>
+        <div class="chips">
+          <span class="chip chip--hi">Effort <b>High</b></span>
+          <span class="chip chip--md">Fix <b>Highest</b></span>
+          <span class="chip chip--hi">New content <b>3× everything</b></span>
+        </div>
+        <p class="dir__risk"><b>Trade-off</b>Triples copy maintenance; the logistics variants don't exist yet; crawlers only ever see the default variant.</p>
+      </article>
+
+      <!-- C -->
+      <article class="dir">
+        <div class="dir__head">
+          <span class="letter">Direction C</span>
+          <h3>One page, two chapters</h3>
+        </div>
+        <p class="dir__what">Shared neutral top, then the scroll splits into <b>clearly labeled industry chapters</b> — each with its own stacks, proof, and CTA. Everyone sees everything, but nothing masquerades as "for you".</p>
+        <div class="wf" role="img" aria-label="Wireframe of direction C: neutral hero, then a banking and insurance chapter followed by a logistics chapter">
+          <div class="wf__title">flowx.ai/</div>
+          <div class="wf__blk">
+            <div class="wf__lab">hero + platform — neutral <span class="r new">rewritten</span></div>
+            <div class="own"><i class="o-n"></i><i class="o-n"></i><i class="o-n"></i></div>
+          </div>
+          <div class="wf__zone z-fs">
+            <div class="wf__zone-lab">For Banking &amp; Insurance</div>
+            <div class="wf__blk">
+              <div class="wf__lab">stacks · proof · voices</div>
+              <div class="own"><i class="o-fs"></i><i class="o-fs"></i><i class="o-ins"></i></div>
+            </div>
+            <div class="wf__blk">
+              <div class="wf__lab">cta → /banking · /insurance</div>
+              <div class="own"><i class="o-fs"></i><i class="o-ins"></i></div>
+            </div>
+          </div>
+          <div class="wf__zone z-log">
+            <div class="wf__zone-lab">For Logistics</div>
+            <div class="wf__blk wf__blk--new">
+              <div class="wf__lab">freight stacks · proof <span class="r new">new</span></div>
+              <div class="own"><i class="o-log"></i><i class="o-log"></i><i class="o-log"></i></div>
+            </div>
+            <div class="wf__blk">
+              <div class="wf__lab">cta → /logistics</div>
+              <div class="own"><i class="o-log"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="chips">
+          <span class="chip chip--md">Effort <b>Medium</b></span>
+          <span class="chip chip--md">Fix <b>High</b></span>
+          <span class="chip chip--md">New content <b>Logistics chapter</b></span>
+        </div>
+        <p class="dir__risk"><b>Trade-off</b>Longer scroll, and whoever's chapter comes second reads as the junior partner — order is a positioning statement.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============ RECOMMENDATION ============ -->
+  <section>
+    <p class="sec-no">3 · The call</p>
+    <div class="rec">
+      <p class="sec-no">Recommendation</p>
+      <p><b>A now — C later</b> if the homepage should carry industry proof itself. <b>B</b> only if marketing needs per-industry campaign behavior on the homepage specifically; pointing campaigns at the existing industry pages gets most of that for free.</p>
+    </div>
+  </section>
+
+  <footer>FLX Landing · exploration only — nothing implemented · sources: app/page.jsx · lib/agentsData.js</footer>
+
+</div>
+</body>
+</html>
