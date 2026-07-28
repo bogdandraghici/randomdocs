@@ -263,6 +263,18 @@
   .artifact h5:first-child{margin-top:0}
   .artifact .c{color:var(--div)}
   .artifact .dim{color:var(--ink-faint)}
+  /* friendly document mockup */
+  .doc{background:#FBFAF6;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .doc-top{background:var(--con);color:#fff;padding:15px 26px;font-family:'JetBrains Mono',monospace;font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+  .doc-top .fn{opacity:.82}
+  .doc-row{display:grid;grid-template-columns:250px 1fr;gap:26px;padding:24px 28px;border-top:1px solid var(--line)}
+  .doc-row:first-child{border-top:none}
+  .doc-row .lbl{font-family:'Fraunces',serif;font-weight:600;font-size:19px;color:var(--ink);line-height:1.15}
+  .doc-row .lbl .keeptag{display:inline-block;margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;font-weight:500;color:var(--con);background:var(--con-wash);padding:3px 8px;border-radius:20px}
+  .doc-row .val{font-size:16.5px;color:var(--ink-soft);line-height:1.55}
+  .doc-row .val .ex{display:block;margin-top:10px;padding:11px 15px;background:var(--paper);border-left:3px solid var(--con-soft);border-radius:0 8px 8px 0;color:var(--ink);font-style:italic;font-size:15.5px;line-height:1.45}
+  .doc-row.keep{background:var(--con-wash)}
+  @media(max-width:700px){.doc-row{grid-template-columns:1fr;gap:8px;padding:20px}}
 
   /* ---------- closing ---------- */
   footer{padding:9vh 0 12vh;text-align:center}
@@ -670,9 +682,11 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-num">07 — SEEING IT WORK</div>
-      <h2>One technique, start to finish</h2>
-      <p class="sub">The clearest way to understand this is to watch a single move play out. Here’s the “random word” technique — used when someone is completely stuck in one pattern.</p>
+      <h2>Watch one technique work</h2>
+      <p class="sub">This is easiest to understand by example. This person is <em>stuck</em> — every idea they come up with is a version of the same idea. Here is how one technique, called the “random word”, gets them unstuck.</p>
     </div>
+
+    <p class="lead-p reveal" style="max-width:82ch">When you’re stuck, thinking <em>harder</em> doesn’t help — your mind keeps sliding back into the same groove. So the trick is to jump somewhere completely unrelated. You grab a random word, notice what’s interesting about it, then ask: <em>“what in my problem is like that?”</em> The word drags your attention to a spot your normal thinking would never have visited — and from there, the problem suddenly looks different.</p>
 
     <div class="example reveal">
       <div class="ex-head">
@@ -685,39 +699,40 @@
         <div class="step">
           <div class="sdot">1</div>
           <div>
-            <h4>Draw a genuinely random word</h4>
-            <p>Not chosen — <em>drawn</em>, with a shuffle command, so the AI can’t sneak in one that already fits. A word that “fits” came from the rut you’re trying to escape.</p>
-            <p style="font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--div);margin-top:8px">$ shuf → <b>tourniquet</b></p>
+            <h4>Grab a truly random word</h4>
+            <p>It has to be <em>random</em> — picked by a shuffle command, not chosen by anyone. If the AI picked a word that seemed to “fit”, that word came from the same stuck thinking you’re trying to escape. This time the shuffle landed on:</p>
+            <p style="font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--div);margin-top:8px">shuffle&nbsp;→&nbsp; <b>tourniquet</b> &nbsp;<span style="color:var(--ink-faint)">(the emergency strap that stops heavy bleeding)</span></p>
           </div>
         </div>
 
         <div class="step">
           <div class="sdot">2</div>
           <div>
-            <h4>Mine the word — before touching the problem</h4>
-            <p>Spend a minute on the word alone. What’s true about it that people never think about?</p>
-            <div class="say-q">“Hold the retention thing for a second. The word is tourniquet. What is it, what does it do?”</div>
-            <div class="say-q a">“Stops bleeding. You put it <em>above</em> the wound, not on it. You write the time on the patient — leave it too long and they lose the limb. It’s the <em>last</em> thing you try, not the first. And it hurts.”</div>
+            <h4>Explore the word — leave the problem alone for a minute</h4>
+            <p>Before connecting it to anything, just describe the word. What is it? What’s true about it that you’d never normally stop to think about? This builds up a little pile of facts to work with later.</p>
+            <div class="say-q">“Forget the customer problem for a second. The word is <em>tourniquet</em>. What is it, what does it do?”</div>
+            <div class="say-q a">“Stops bleeding. You put it <em>above</em> the wound, not on it. You write the time on the patient — leave it on too long and they lose the limb. It’s the <em>last</em> thing you try, not the first. And it hurts.”</div>
           </div>
         </div>
 
         <div class="step">
           <div class="sdot">3</div>
           <div>
-            <h4>Force one attribute against the problem — repeat</h4>
-            <p>Take a single attribute and press it onto the problem. Then the next. The first connection is a warm-up; the good ones come later.</p>
-            <div class="say-q">“‘You write the time on them.’ Put that next to your discounts.”</div>
-            <div class="say-q a">“…None of ours have an end. We’ve got customers 18 months in on a code we ran for <em>one week</em> in 2023.”</div>
+            <h4>Hold one fact about the word against your problem</h4>
+            <p>Take a <em>single</em> fact about the word and ask: “what in my problem is like this?” Then do the next fact, and the next. The first answer is usually a dud — the good ones come after. Watch what happens with one fact — <em>a tourniquet has the time written on it so nobody forgets to take it off</em>:</p>
+            <div class="say-q">“‘You write the time on it so it comes off.’ Put that next to your discounts.”</div>
+            <div class="say-q a">“…None of ours ever come off. We’ve got customers 18 months in, still paying a price from a discount code we ran for <em>one week</em> back in 2023.”</div>
+            <p style="margin-top:12px;font-size:15px;color:var(--ink-faint)">See the move: a random fact about tourniquets → a simple question → a problem nobody had noticed. The discounts never end.</p>
           </div>
         </div>
 
         <div class="step">
           <div class="sdot">4</div>
           <div>
-            <h4>Everything lands on the board — unjudged</h4>
-            <p>Six connections, none of them a discount. They go on the list in the order they came, flat, no “this one’s best.” The word itself never appears on the board — it was just scaffolding.</p>
+            <h4>Write every idea down — judge none of them yet</h4>
+            <p>Repeating this with several facts produced six ideas — and <em>not one of them is a discount</em>. They all go on a running list, in the order they arrived, with nothing marked “best.” (The word “tourniquet” isn’t on the list — it was only a springboard to jump from.)</p>
             <div class="board">
-              <div class="bh">The board · generation order · nothing ranked</div>
+              <div class="bh">The list so far · in the order they came · nothing ranked</div>
               <ol>
                 <li>Every retention offer carries a <b>written expiry</b> and a review date</li>
                 <li>Move the fix to the <b>incident</b> (the bad box in month one), not the cancel screen</li>
@@ -727,15 +742,15 @@
                 <li><b>Charge the cost back</b> to the team whose mistake caused it</li>
               </ol>
             </div>
-            <p style="margin-top:16px">The original thinking had exactly one axis: <em>how much money we give back, and when.</em> None of these six sit on it. <strong>That</strong> is the point of the whole exercise.</p>
+            <p style="margin-top:16px">Before this, every idea the team ever had was secretly the <em>same</em> idea: give money back — just a bit more, or a bit sooner. All six of these are about something completely different. <strong>Breaking out of that one track is the entire point.</strong></p>
           </div>
         </div>
 
         <div class="step conv">
           <div class="sdot">→</div>
           <div>
-            <h4>…and only later, past the Gate, does any of it get judged</h4>
-            <p>The board grows with a second technique from a different family, hits the Gate, and — once you say “go” — gets clustered, tested, and cut down into a shaped set of real options, written up in a file you keep.</p>
+            <h4>Only later — past the locked Gate — do you narrow down</h4>
+            <p>This was just one technique. The session runs at least one more (from a different family) to widen the list further, then reaches the Gate. Once <em>you</em> say “go”, the ideas finally get grouped, tested, and cut down to a short list of real options — and the whole session is saved to a file. That file is the next section.</p>
           </div>
         </div>
 
@@ -749,32 +764,58 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <div class="sec-num">08 — WHAT YOU WALK AWAY WITH</div>
-      <h2>Not a verdict — a shaped space</h2>
-      <p class="sub">The output isn’t “do X.” It’s a written page: a smaller set of live options, the reasons the others are gone, and the exact facts that would decide between what remains. Here’s the skeleton of that file.</p>
+      <h2>You don’t get a verdict. You get your thinking, organised.</h2>
+      <p class="sub">When the session ends, everything is saved to a simple notes file (with the date in its name, so you can find it again months later). It doesn’t say “do this.” It lays out where your thinking landed — the options still alive, why the rest were dropped, and the fact or two that would settle it. Here’s a real, finished one, with each part explained:</p>
     </div>
 
-    <div class="artifact reveal">
-      <span class="fname">thinking/2026-07-27-developer-champion-deals.md</span>
-<h5># The question I arrived with</h5>
-<span class="dim">“Should we build a public API?”</span>
-<h5># The question after reframing</h5>
-<span class="c">“How do we stop losing deals where the champion is a developer who never gets to try the product?”</span>
-<h5># Assumptions surfaced</h5>
-<span class="dim">| assumption | load-bearing? | survived? |</span>
-<h5># Techniques run</h5>
-<span class="dim">| technique | family | stimulus | what it produced |</span>
-<h5># The full option space</h5>
-&nbsp;&nbsp;<b>Live candidates</b> <span class="dim">— one line each, on what it does (not why it's good)</span>
-&nbsp;&nbsp;<b>Discarded — and why</b> <span class="dim">| option | cut by which of YOUR criteria | note |</span>
-<h5># Premortem: leading candidate</h5>
-<span class="dim">| failure cause (past tense) | earliest visible signal |</span>
-<h5># What would change my mind</h5>
-<span class="dim">- a checkable fact — and where it would show up first</span>
-<h5># Open threads</h5>
-<span class="dim">- questions raised and not resolved, with enough context to pick up cold</span>
+    <div class="doc reveal" role="img" aria-label="A mockup of the saved notes file, showing each section with a plain-English explanation.">
+      <div class="doc-top">
+        <span>📄 &nbsp;the saved notes file</span>
+        <span class="fn">2026-07-27 · “developer champion deals”</span>
+      </div>
+
+      <div class="doc-row">
+        <div class="lbl">The question I walked in with</div>
+        <div class="val">Your problem in your own words, before anything was touched.
+          <span class="ex">“Should we build a public API?”</span></div>
+      </div>
+
+      <div class="doc-row">
+        <div class="lbl">The question after we dug in</div>
+        <div class="val">Usually different — and sharper — than where you started. This is the question the rest of the session actually worked on.
+          <span class="ex">“How do we stop losing deals where the key person is a developer who never gets to actually try the product?”</span></div>
+      </div>
+
+      <div class="doc-row">
+        <div class="lbl">Every option we came up with</div>
+        <div class="val">The full list generated during the “open up” phase — including the weak and weird ones, so nothing is quietly lost.</div>
+      </div>
+
+      <div class="doc-row keep">
+        <div class="lbl">What we dropped, and why<span class="keeptag">★ matters most later</span></div>
+        <div class="val">Each rejected option, sitting next to the exact reason <em>you</em> gave for cutting it — not a reason the AI invented.
+          <span class="ex">“Sell integration work as a service — dropped, because it fails your rule ‘must not need a second hire’.”</span></div>
+      </div>
+
+      <div class="doc-row">
+        <div class="lbl">If the front-runner failed, here’s how</div>
+        <div class="val">The leading option, imagined as if it had already flopped — plus the earliest warning signs you could actually watch for.
+          <span class="ex">Warning sign: “by week three, fewer than half of new sign-ups connect any tool at all.”</span></div>
+      </div>
+
+      <div class="doc-row">
+        <div class="lbl">What would change my mind</div>
+        <div class="val">The one or two facts that would settle it — and exactly where to go find them.
+          <span class="ex">“Check the last 10 lost deals in the CRM: did they ask for an API in general, or one specific integration? (One afternoon.)”</span></div>
+      </div>
+
+      <div class="doc-row keep">
+        <div class="lbl">Loose ends<span class="keeptag">★ matters most later</span></div>
+        <div class="val">Questions raised but not finished — written with enough detail that a future you (or a future session) can pick them up cold.</div>
+      </div>
     </div>
 
-    <p class="reveal" style="margin-top:28px;max-width:82ch;color:var(--ink-soft)">The two sections that feel redundant on the day — <em>Discarded &amp; why</em> and <em>Open threads</em> — are the only ones that matter in six weeks. Without them, a future session just regenerates the same options and cuts them again against criteria nobody remembers.</p>
+    <p class="reveal" style="margin-top:28px;max-width:82ch;color:var(--ink-soft)">The two parts marked <b style="color:var(--con)">★</b> feel pointless on the day — of course you remember why you dropped that option. But they’re the only parts you’ll thank yourself for in six weeks. Without them, you (or the next session) just re-invent the same options and argue them down all over again, against reasons nobody can remember.</p>
   </div>
 </section>
 
