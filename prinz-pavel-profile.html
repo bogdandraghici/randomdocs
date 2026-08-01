@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>u/prinz_pavel — a reading of eight years of comments</title>
+<style>
+  :root{
+    --paper:#FBFAF7;
+    --raise:#F3F1EB;
+    --ink:#1B1A17;
+    --muted:#6E6B64;
+    --faint:#95918A;
+    --rule:#E3E0D8;
+    --accent:#9C4A2F;
+    --accent-soft:#9C4A2F1a;
+    --serif: "Iowan Old Style","Charter","Georgia","Times New Roman",serif;
+    --sans: -apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    --mono: ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#121211;
+      --raise:#1B1B19;
+      --ink:#ECE9E2;
+      --muted:#9A968E;
+      --faint:#75716A;
+      --rule:#2B2A26;
+      --accent:#C97757;
+      --accent-soft:#C9775722;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:18px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  @media(max-width:768px){ .wrap{padding:0 20px} body{font-size:17px} }
+
+  /* ---------- shared type ---------- */
+  .label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--faint);
+    font-weight:500;
+  }
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  h1,h2,h3{font-family:var(--sans);letter-spacing:-.022em;line-height:1.12;margin:0}
+  h1{font-size:clamp(30px,4.4vw,46px);font-weight:640}
+  h2{font-size:clamp(23px,2.5vw,29px);font-weight:620;margin-bottom:.5em}
+  h3{font-size:17px;font-weight:640;letter-spacing:-.01em;margin:2.2em 0 .4em}
+  p{margin:0 0 1.05em;max-width:68ch}
+  a{color:var(--accent);text-underline-offset:3px}
+  strong{font-weight:600}
+  em{font-style:italic}
+
+  /* ---------- masthead ---------- */
+  header{padding:64px 0 40px;border-bottom:1px solid var(--rule)}
+  .masthead{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:56px;align-items:end}
+  @media(max-width:860px){ .masthead{grid-template-columns:1fr;gap:34px;align-items:start} header{padding:44px 0 30px} }
+  .kicker{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+  .kicker .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
+  .handle{
+    font-family:var(--mono);font-size:14px;color:var(--accent);
+    background:var(--accent-soft);padding:3px 9px;border-radius:5px;letter-spacing:-.01em;
+  }
+  .standfirst{margin-top:22px;font-size:19px;color:var(--muted);max-width:56ch}
+  @media(max-width:860px){ .standfirst{font-size:17.5px} }
+
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+  .fact{background:var(--paper);padding:14px 16px}
+  .fact .v{font-family:var(--mono);font-size:19px;font-weight:600;letter-spacing:-.03em;display:block;margin-bottom:3px;font-variant-numeric:tabular-nums}
+  .fact .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+
+  /* ---------- section grid ---------- */
+  section{border-bottom:1px solid var(--rule);padding:52px 0}
+  section:last-of-type{border-bottom:0}
+  .sec{display:grid;grid-template-columns:180px minmax(0,1fr);gap:48px}
+  @media(max-width:900px){ .sec{grid-template-columns:1fr;gap:18px} section{padding:38px 0} }
+  .rail{position:sticky;top:28px;align-self:start}
+  @media(max-width:900px){ .rail{position:static} }
+  .rail .n{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.14em;display:block;margin-bottom:7px}
+  .rail .t{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);line-height:1.5}
+
+  /* ---------- quotes ---------- */
+  blockquote{
+    margin:1.7em 0;padding:2px 0 2px 20px;border-left:2px solid var(--accent);
+    font-size:19px;line-height:1.5;max-width:62ch;
+  }
+  blockquote .ro{display:block}
+  blockquote .en{display:block;margin-top:.5em;font-family:var(--sans);font-size:14.5px;font-style:normal;color:var(--muted);line-height:1.55}
+  blockquote cite{
+    display:block;margin-top:.75em;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);font-style:normal;
+  }
+
+  /* ---------- data ---------- */
+  .bars{margin:6px 0 4px;max-width:600px}
+  .bar{display:grid;grid-template-columns:118px minmax(0,1fr) 44px;align-items:center;gap:12px;padding:5px 0;border-bottom:1px solid var(--rule)}
+  .bar:last-child{border-bottom:0}
+  .bar .nm{font-family:var(--mono);font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar .track{height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--accent);border-radius:3px;transform-origin:left;animation:grow .9s cubic-bezier(.16,1,.3,1) both}
+  .bar .ct{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+  @media(max-width:520px){ .bar{grid-template-columns:96px minmax(0,1fr) 38px;gap:9px} }
+  @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+  .years{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;align-items:end;max-width:560px;margin:10px 0 6px;height:96px}
+  .yr{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:7px}
+  .yr .col{background:var(--accent);opacity:.85;border-radius:3px 3px 0 0;animation:rise 1s cubic-bezier(.16,1,.3,1) both;transform-origin:bottom}
+  .yr .yl{font-family:var(--mono);font-size:10px;color:var(--faint);text-align:center}
+  @keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+  /* ---------- timeline ---------- */
+  .tl{margin:8px 0 0;padding:0;list-style:none;max-width:64ch}
+  .tl li{position:relative;padding:0 0 22px 26px;border-left:1px solid var(--rule)}
+  .tl li:last-child{border-left-color:transparent;padding-bottom:0}
+  .tl li::before{
+    content:"";position:absolute;left:-4.5px;top:8px;width:8px;height:8px;border-radius:50%;
+    background:var(--paper);border:1.5px solid var(--accent);
+  }
+  .tl .when{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:3px}
+  .tl .what{font-size:17px;line-height:1.55}
+
+  /* ---------- misc ---------- */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:38px}
+  @media(max-width:760px){ .two{grid-template-columns:1fr;gap:6px} }
+  .note{
+    background:var(--raise);border:1px solid var(--rule);border-radius:10px;
+    padding:20px 22px;font-size:16px;line-height:1.6;color:var(--muted);max-width:66ch;
+  }
+  .note p{margin:0 0 .7em;max-width:none}
+  .note p:last-child{margin:0}
+  .note strong{color:var(--ink)}
+  ul.plain{margin:0 0 1.05em;padding-left:1.1em;max-width:66ch}
+  ul.plain li{margin-bottom:.42em}
+  footer{padding:36px 0 60px;color:var(--faint);font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;border-top:1px solid var(--rule)}
+
+  /* staggered entry */
+  .rise{animation:up .7s cubic-bezier(.16,1,.3,1) both}
+  @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap masthead">
+    <div class="rise">
+      <div class="kicker">
+        <span class="dot"></span>
+        <span class="label">Reddit history &middot; behavioural reading</span>
+      </div>
+      <h1>Eight years of <span class="handle">u/prinz_pavel</span></h1>
+      <p class="standfirst">A Romanian front-end developer in his late thirties who stopped enjoying code, built an NGO instead, and treats a stranger&rsquo;s bad week as something worth writing four paragraphs about.</p>
+    </div>
+    <div class="facts rise" style="animation-delay:.09s">
+      <div class="fact"><span class="v">968</span><span class="k">Comments read</span></div>
+      <div class="fact"><span class="v">55</span><span class="k">Posts</span></div>
+      <div class="fact"><span class="v">111</span><span class="k">Subreddits</span></div>
+      <div class="fact"><span class="v">19,248</span><span class="k">Karma</span></div>
+      <div class="fact"><span class="v">Jan 2017</span><span class="k">Account created</span></div>
+      <div class="fact"><span class="v">2026</span><span class="k">Still active</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">01</span><span class="t">The short version</span></div>
+      <div>
+        <h2>Who he is</h2>
+        <p>A Romanian man in his late thirties &mdash; the arithmetic on his own statements puts his birth around 1986&ndash;88 &mdash; living in Bucharest. A front-end developer of roughly eighteen years who burned out on the work itself, moved sideways into product ownership, founded a substantial NGO along the way, and has spent the last two years in a visibly rough professional patch.</p>
+        <p>Politically he is an emphatically pro-European, anti-nationalist progressive who reads the rise of AUR, Georgescu and Simion as an existential threat rather than a news cycle. Personally he is a daily meditator and Stoicism reader whose single most repeated contribution to Reddit, across eight years and hundreds of comments, is some version of <em>go and see a therapist</em>.</p>
+        <p>He is also, in a different mood, entirely capable of telling a stranger to fuck off &mdash; and he knows it about himself.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">02</span><span class="t">Where he spends his time</span></div>
+      <div>
+        <h2>The shape of the account</h2>
+        <p>Half of everything he has ever written sits in one subreddit. The distribution is not a hobbyist&rsquo;s spread across interests &mdash; it is a citizen&rsquo;s, anchored hard to his country and his two cities, with music and code as the recurring escape valves.</p>
+
+        <div class="bars">
+          <div class="bar"><span class="nm">r/Romania</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="ct">478</span></div>
+          <div class="bar"><span class="nm">r/bucuresti</span><span class="track"><span class="fill" style="width:16.5%;animation-delay:.05s"></span></span><span class="ct">79</span></div>
+          <div class="bar"><span class="nm">r/cluj</span><span class="track"><span class="fill" style="width:12.6%;animation-delay:.1s"></span></span><span class="ct">60</span></div>
+          <div class="bar"><span class="nm">r/programare</span><span class="track"><span class="fill" style="width:6.1%;animation-delay:.15s"></span></span><span class="ct">29</span></div>
+          <div class="bar"><span class="nm">r/KendrickLamar</span><span class="track"><span class="fill" style="width:5.9%;animation-delay:.2s"></span></span><span class="ct">28</span></div>
+          <div class="bar"><span class="nm">r/AskEurope</span><span class="track"><span class="fill" style="width:4.4%;animation-delay:.25s"></span></span><span class="ct">21</span></div>
+          <div class="bar"><span class="nm">r/Eminem</span><span class="track"><span class="fill" style="width:3.8%;animation-delay:.3s"></span></span><span class="ct">18</span></div>
+          <div class="bar"><span class="nm">r/CasualRO</span><span class="track"><span class="fill" style="width:3.6%;animation-delay:.35s"></span></span><span class="ct">17</span></div>
+          <div class="bar"><span class="nm">r/europe</span><span class="track"><span class="fill" style="width:3.1%;animation-delay:.4s"></span></span><span class="ct">15</span></div>
+          <div class="bar"><span class="nm">r/hiphopheads</span><span class="track"><span class="fill" style="width:3.1%;animation-delay:.45s"></span></span><span class="ct">15</span></div>
+          <div class="bar"><span class="nm">r/westworld</span><span class="track"><span class="fill" style="width:2.7%;animation-delay:.5s"></span></span><span class="ct">13</span></div>
+          <div class="bar"><span class="nm">r/Stoicism</span><span class="track"><span class="fill" style="width:1.7%;animation-delay:.55s"></span></span><span class="ct">8</span></div>
+        </div>
+
+        <h3>Comments per year</h3>
+        <div class="years">
+          <div class="yr"><span class="col" style="height:8%"></span><span class="yl">17</span></div>
+          <div class="yr"><span class="col" style="height:5%;animation-delay:.05s"></span><span class="yl">18</span></div>
+          <div class="yr"><span class="col" style="height:41%;animation-delay:.1s"></span><span class="yl">19</span></div>
+          <div class="yr"><span class="col" style="height:64%;animation-delay:.15s"></span><span class="yl">20</span></div>
+          <div class="yr"><span class="col" style="height:38%;animation-delay:.2s"></span><span class="yl">21</span></div>
+          <div class="yr"><span class="col" style="height:58%;animation-delay:.25s"></span><span class="yl">22</span></div>
+          <div class="yr"><span class="col" style="height:46%;animation-delay:.3s"></span><span class="yl">23</span></div>
+          <div class="yr"><span class="col" style="height:100%;animation-delay:.35s"></span><span class="yl">24</span></div>
+          <div class="yr"><span class="col" style="height:45%;animation-delay:.4s"></span><span class="yl">25</span></div>
+        </div>
+        <p style="margin-top:18px">Two spikes tell the story: 2020, when a pandemic put everyone indoors, and 2024, Romania&rsquo;s annulled-election year, when his output nearly doubled and his tone hardened from arguing to pleading.</p>
+        <p>He posts overwhelmingly between about 1pm and 5pm Romanian time, tapering sharply after eight in the evening. This is someone commenting from a desk during the working day, not someone scrolling at night.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">03</span><span class="t">Work</span></div>
+      <div>
+        <h2>A career that stopped being fun</h2>
+        <p>This is the clearest thread in the whole history, and the least happy one. He got hired in his second year of university and never went back &mdash; he had tried Computer Science at UPB in Bucharest around 2009 and remembers it with real contempt: professors with no respect for students, filthy campus bathrooms, an expired curriculum, ninety minutes of commuting each way.</p>
+
+        <ul class="tl">
+          <li>
+            <span class="when">c. 2006&ndash;07</span>
+            <span class="what">Starts working in front-end while still a student. Drops out of Computer Science; no regrets, then or later.</span>
+          </li>
+          <li>
+            <span class="when">April 2019</span>
+            <span class="what">&ldquo;Senior front-end developer for the past 11&ndash;12 years. I&rsquo;ve come to despise it.&rdquo; Studying public administration on the side, explicitly as an exit route.</span>
+          </li>
+          <li>
+            <span class="when">Mid 2019</span>
+            <span class="what">Becomes product owner at an international company of about a hundred people &mdash; which he describes, deflating the title, as &ldquo;a sort of team lead plus business analyst.&rdquo;</span>
+          </li>
+          <li>
+            <span class="when">By Feb 2023</span>
+            <span class="what">Reveals he founded an NGO: ten-plus paid staff, three thousand volunteers, forty completed projects, work with the UN, and interventions during the pandemic and the start of the war in Ukraine that he says saved lives.</span>
+          </li>
+          <li>
+            <span class="when">Jan 2024</span>
+            <span class="what">&ldquo;Fucking dezastru.&rdquo; Freelancing through friends after four months of fruitless interviewing. Disgusted that every company now &ldquo;thinks it&rsquo;s Google&rdquo; and wanted three supervised live-coding tests.</span>
+          </li>
+          <li>
+            <span class="when">Spring 2025</span>
+            <span class="what">Mentions, while advising someone else on concentration problems, that he nearly lost his job over the same thing.</span>
+          </li>
+          <li>
+            <span class="when">Nov 2025</span>
+            <span class="what">Posts that he is going on the bench after eight months at an outsourcing firm &mdash; his first time in outsourcing, having come from product companies, advertising agencies and NGOs.</span>
+          </li>
+        </ul>
+
+        <h3>On the NGO</h3>
+        <blockquote>
+          <span class="ro">&ldquo;Not to brag, but I founded an NGO that currently has over 10 employees paid decently compared to what other NGOs pay, some 3,000+ volunteers&hellip; 40+ completed projects, some with global exposure, and we&rsquo;re now even working with the UN.&rdquo;</span>
+          <cite>r/Romania &middot; February 2023</cite>
+        </blockquote>
+        <p>The same thread contains his verdict on the public sector, which he clearly earned the hard way: egos, no vision, unanswered emails, optional deadlines, people who obstruct without realising they are obstructing.</p>
+
+        <h3>On AI</h3>
+        <p>He is an early and unembarrassed adopter. He built a production React Native app with a Strapi backend entirely by talking to ChatGPT &mdash; for a friend&rsquo;s pre-seed startup, having never written a line of React &mdash; working in small batches organised around user stories, over three or four months of part-time evenings. He has tried Blackbox and Cursor, finds Cursor starts hallucinating quickly, and named Claude CLI his favourite: &ldquo;a bit expensive, but highly recommend it.&rdquo;</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">04</span><span class="t">Geography</span></div>
+      <div>
+        <h2>Bucharest, Cluj, Amsterdam, back</h2>
+        <p>Bucharest is origin and current home. He talks about a childhood apartment block, knows the city&rsquo;s failures with the weariness of someone who has watched them for two decades, trained at an unrenovated boxing gym deep inside the Dinamo complex, and runs in the city&rsquo;s central parks.</p>
+        <p>He has lived in England and the Netherlands. The Amsterdam stint &mdash; two years &mdash; produced the single most vivid thing he has written about money:</p>
+        <blockquote>
+          <span class="ro">&ldquo;Ro &rarr; Amsterdam. About &euro;1,500 to last two months until my first salary and relocation bonus came in. I stayed in an Airbnb far from the centre, then on a friend&rsquo;s couch, also far, then about two weeks in a hostel &mdash; wasn&rsquo;t bad, I kept my big suitcase at the office. Hummus, falafel, tinned fish and the occasional beer.&rdquo;</span>
+          <cite>r/Romania &middot; May 2023 &middot; translated from Romanian</cite>
+        </blockquote>
+        <p>He was in Cluj-Napoca from at least late 2018 until roughly 2021&ndash;22, where he took a bachelor&rsquo;s and a master&rsquo;s in public administration while working six-hour days, finishing in the top five of his cohort and taking annual leave during every exam session because, as he put it, you cannot hold a job and study several hours a day &mdash; the context-switching breaks you.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">05</span><span class="t">Politics</span></div>
+      <div>
+        <h2>European first</h2>
+        <blockquote>
+          <span class="ro">&ldquo;I consider myself European first, my Romanian nationality comes after that. I have a sense of belonging in any European city that I&rsquo;ve traveled and will travel to.&rdquo;</span>
+          <cite>r/europe &middot; January 2018</cite>
+        </blockquote>
+        <p>That single line from 2018 predicts almost everything he has written since. He is left of centre &mdash; active in r/SandersForPresident, of the view that nobody should be a billionaire, arguing that a minimum wage exists to enable social mobility rather than to subsidise survival. He is contemptuous of Romania&rsquo;s tabloid news channels and considers their audiences propaganda casualties, but notably refuses to let the young off: he blames turnout among 18&ndash;24s as much as he blames anyone&rsquo;s grandparents.</p>
+        <p>The 2024 election cycle changed his register. The arguing stops and something closer to alarm takes over:</p>
+        <blockquote>
+          <span class="ro">&ldquo;Nu mai e vorba de vomitat sau nu. Am trecut de faza asta. E absolut necesar sa facem ce trebuie, cu inima in gat. Va fi ceva foarte rau altfel. Imagineaza-ti ce masuri ar lua un guvern majoritar AUR/SOS/POT. Doar imagineaza-ti.&rdquo;</span>
+          <span class="en">&ldquo;This isn&rsquo;t about whether it makes you sick any more. We&rsquo;re past that. It is absolutely necessary to do what needs doing, with your heart in your throat. Otherwise something very bad happens. Imagine the measures an AUR/SOS/POT majority government would take. Just imagine it.&rdquo;</span>
+          <cite>r/bucuresti &middot; November 2024</cite>
+        </blockquote>
+        <p>He frames the risk as gradually becoming Russia and being pushed out of the EU, and dismisses anti-LGBT talking points as Kremlin lines being repeated by people who did not write them. Elsewhere he is anti-clerical, pushes back hard and immediately on victim-blaming about rape, and has called out anti-Roma racism directly and without hedging.</p>
+
+        <div class="two">
+          <div>
+            <h3>Climate</h3>
+            <p>A genuine, recurring concern rather than a position. He corrects people who wave off heatwaves with &ldquo;it&rsquo;s summer&rdquo; by pointing at the number of 30-degree days rather than the peak, and expects civilisational-scale trouble within decades absent radical change in how things are produced and consumed.</p>
+          </div>
+          <div>
+            <h3>Cities</h3>
+            <p>He makes the induced-demand argument unprompted: more underpasses, bridges and roads mean more cars, and the only urbanistically proven fix is public and alternative transport. He is unsentimental about parking, too &mdash; nobody is owed it for free.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">06</span><span class="t">Register</span></div>
+      <div>
+        <h2>Two voices, and he knows it</h2>
+        <p>With anyone vulnerable he is patient to the point of tenderness. A woman calling herself stupid got a real pep talk plus a jab at the industry she was intimidated by. A teenager panicking about anatomy got told, bluntly and kindly, that the problem was his self-esteem. Someone describing family abuse got four sentences with no hedging in them:</p>
+        <blockquote>
+          <span class="ro">&ldquo;Nu esti. You got out. Fuck&rsquo;em. N-ai nici-o obligatie fata de ele, ti-au facut o tona de rau.&rdquo;</span>
+          <span class="en">&ldquo;You&rsquo;re not. You got out. Fuck them. You owe them nothing, they did you a mountain of harm.&rdquo;</span>
+          <cite>r/CasualRO &middot; December 2024</cite>
+        </blockquote>
+        <p>With people he reads as propagandised, arrogant or performatively miserable, the same directness turns the other way &mdash; &ldquo;you&rsquo;re completely disconnected from reality, read more&rdquo;, or simply &ldquo;fuck off&rdquo;. He is unusually honest about the gap:</p>
+        <blockquote>
+          <span class="ro">&ldquo;&hellip;cum de altfel se vede si la mine ca nu sunt vreo usa de biserica si ma descarc aiurea pe net.&rdquo;</span>
+          <span class="en">&ldquo;&hellip;as you can see in my own case, I&rsquo;m no saint either, venting pointlessly on the internet.&rdquo;</span>
+          <cite>r/Romania &middot; February 2023</cite>
+        </blockquote>
+
+        <h3>The third mode: logistics</h3>
+        <p>Between the warmth and the aggression sits his most useful register &mdash; long, specific, procedural help. Bus routes from Cluj airport with the interchange named. Which moving company, what it cost, how many boxes. Replacing a MacBook battery with iFixit kits. Which private clinics have unhurried doctors. His single highest-effort comment is a step-by-step walkthrough of what happens after a drug arrest in Romania: what the summons looks like, roughly how long it takes to arrive, what to say, what paperwork to bring, what the whole thing costs. It ends, characteristically, with a practical aside and the word <em>Succes!</em></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">07</span><span class="t">The rest of him</span></div>
+      <div>
+        <h2>Habits, taste, texture</h2>
+        <div class="two">
+          <div>
+            <h3>Practice</h3>
+            <p>Up around six, then a run. He has used Headspace almost daily for eight or nine years and calls it the best investment he has made in himself, cycling through its anxiety, grief and focus packs. He came to Stoicism through Ryan Holiday, says it &ldquo;kinda changed my life&rdquo;, now reads Aurelius and Seneca directly &mdash; and defends Holiday against the purists in r/Stoicism on the grounds that gatekeeping helps nobody.</p>
+            <h3>Body</h3>
+            <p>Boxing, calisthenics, intervals, a heavily modified secondhand road bike and a Commencal downhill bike. He smoked for sixteen years and quit around 2020.</p>
+          </div>
+          <div>
+            <h3>Taste</h3>
+            <p>Hip-hop and house, and by his own admission almost nothing Romanian: Kendrick above all, then J. Cole, Eminem, the Griselda camp, Freddie Gibbs, Jay-Z. <em>Mr. Robot</em> and <em>Westworld</em> rated highly and defended against detractors; fluent in <em>Sopranos</em>.</p>
+            <h3>Objects</h3>
+            <p>A Carhartt loyalist bordering on evangelist &mdash; seven pairs of trousers, the oldest six years old. Leans minimalist, repairs his own Apple hardware, banks with ING for over a decade, dollar-cost-averages into bitcoin while telling other people not to gamble money they cannot lose. Quit Facebook in 2017 and tells strangers to delete TikTok.</p>
+          </div>
+        </div>
+        <p>He has a cat called Ingrid. A long relationship ended around 2019 &mdash; three years together, a four-month break, a reconciliation, then a final split at the six-year mark. He has said, in passing and without elaborating, that he would like to adopt one day.</p>
+        <p>One last behaviour worth recording: in May 2025 he spent a week deliberately baiting Romanian disinformation subreddits and openly enjoying how fast the bans landed. <span class="num">&ldquo;2 min le-a luat.&rdquo;</span> He treats it as sport.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec">
+      <div class="rail"><span class="n">08</span><span class="t">Caveats</span></div>
+      <div>
+        <h2>What this is not</h2>
+        <div class="note">
+          <p><strong>The window has a hard edge.</strong> The comment archive behind this reading stops on 19 May 2025 &mdash; that is the archive&rsquo;s limit, not his. Search results confirm continued posting through at least spring 2026, so the most recent fifteen months are thin here.</p>
+          <p><strong>His own numbers disagree.</strong> In 2024 he describes &ldquo;18 years of experience&rdquo; in one place and &ldquo;a 15-year career that ended four or five years ago&rdquo; in another. Dates in this document are approximate and derived, not stated.</p>
+          <p><strong>This is inference, not identity.</strong> Everything above comes from what one person chose to post in public over eight years. No attempt has been made to connect the account to a real-world identity, and the aggregation here &mdash; scattered comments pulled into one place &mdash; is itself the thing that makes such a document worth handling carefully.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  968 comments &middot; 55 posts &middot; 111 subreddits &middot; Jan 2017 &ndash; May 2025 &middot; compiled from public archive data
+</footer>
+
+</body>
+</html>
